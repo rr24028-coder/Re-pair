@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es-SV">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    
+    <title>Crear cuenta · Re-pear</title>
+    <meta name="description" content="Regístrate en Re-pear para gestionar el servicio técnico de tus computadores.">
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="icon" href="assets/favicon-fresh.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="registro.css">
+</head>
+<body data-page="register">
+    <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+        <defs id="icon-defs">
+            <symbol id="pear-fruit" viewBox="0 0 64 64">
+                <path d="M32 17C22 17 22 29 17 36C6 52 17 61 32 61S58 52 47 36C42 29 42 17 32 17Z" fill="#A5D95C"/>
+                <path d="M32 18V10H43V5" fill="none" stroke="#1B4332" stroke-width="3.5" stroke-linecap="round"/>
+                <circle cx="43" cy="5" r="3" fill="#FF8A5B"/>
+                <path d="M31 14C23 14 21 10 22 5C28 5 32 8 31 14Z" fill="#2D6A4F"/>
+            </symbol>
+        </defs>
+    </svg>
+
+    <main class="main-auth">
+        <div class="panel auth-card">
+            <a href="index.html" class="brand" aria-label="Volver al inicio">
+                <svg aria-hidden="true"><use href="#pear-fruit"/></svg>
+                <span>Re<em>-</em>pear</span>
+            </a>
+            
+            <h1>Únete a Re-pear.</h1>
+            <p class="muted">Crea tu cuenta para registrar tus equipos.</p>
+            
+            <form id="register-form" class="fields">
+                <div>
+                    <label for="register-name">Nombre completo</label>
+                    <input type="text" id="register-name" required placeholder="Juan Pérez">
+                </div>
+                <div>
+                    <label for="register-email">Correo electrónico</label>
+                    <input type="email" id="register-email" autocomplete="email" required placeholder="tu@correo.com">
+                </div>
+                <div>
+                    <label for="register-password">Contraseña</label>
+                    <input type="password" id="register-password" minlength="6" autocomplete="new-password" required>
+                </div>
+                <button class="btn primary full-width">Crear cuenta</button>
+            </form>
+            
+            <a class="auth-links" href="ingresar.html">Ya tengo una cuenta</a>
+            
+            <div class="notice">Registro simulado. No se almacenan datos personales.</div>
+        </div>
+    </main>
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+  apiKey: "AIzaSyB8q0dzo5W3DYb1920keTFNwjNtoPr_PL4",
+  authDomain: "re-pear-web.firebaseapp.com",
+  projectId: "re-pear-web",
+  storageBucket: "re-pear-web.firebasestorage.app",
+  messagingSenderId: "932851115801",
+  appId: "1:932851115801:web:491a62ddd96dae78e18788"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.db = db;
+  window.collection = collection;
+  window.addDoc = addDoc;
+  window.getDocs = getDocs;
+</script>
+    <script src="app.js"></script>
+</body>
+</html>
