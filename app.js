@@ -22,10 +22,14 @@ const readStore = (key, fallback) => { try { return JSON.parse(localStorage.getI
 const writeStore = (key, data) => { try { localStorage.setItem(key, JSON.stringify(data)); } catch {} };
 
 let equipment = [];
+let currentUser = null;
 
-async function fetchEquipos() {
+async function fetchEquipos(uid) {
     try {
-        const querySnapshot = await window.getDocs(window.collection(window.db, "equipos"));
+        // Creamos una consulta: Traer equipos SOLO donde el 'uid' coincida con el usuario actual
+        const q = window.query(window.collection(window.db, "equipos"), window.where("uid", "==", uid));
+        const querySnapshot = await window.getDocs(q);
+        
         equipment = [];
         querySnapshot.forEach((documento) => {
             equipment.push({ id: documento.id, ...documento.data() });
@@ -196,6 +200,7 @@ $('#equipment-form').addEventListener('submit', async ev => {
     }
 
     const data = {
+        uid: currentUser.uid, // <-- ESTO ES CLAVE, asocia el equipo al usuario logueado
         type: $('#equipment-type').value,
         alias: $('#equipment-alias').value.trim(),
         model: $('#equipment-model').value.trim(),
@@ -247,12 +252,55 @@ if (flashMsg) {
     setTimeout(() => toast(flashMsg), 300);
 }
 
-$('#login-form').addEventListener('submit', ev => {
-    ev.preventDefault();
-    sessionStorage.setItem('repear-flash', 'Acceso de prueba completado.');
-    location.href = 'index.html';
-});
+// Formularios de Autenticación Reales
+const loginForm = $('#login-form');
+if (loginForm.addEventListener) {
+    loginForm.addEventListener('submit', async ev => {
+        ev.preventDefault();
+        const email = $('#login-email').value;
+        const password = $('#login-password').value;
+        try {
+            await window.signInWithEmailAndPassword(window.auth, email, password);
+            // Si el login es correcto, el observador (abajo) lo mandará a index.html
+        } catch (error) {
+            toast('Error: Credenciales incorrectas.');
+        }
+    });
+}
 
+const registerForm = $('#register-form');
+if (registerForm.addEventListener) {
+    registerForm.addEventListener('submit', async ev => {
+        ev.preventDefault();
+        const email = $('#register-email').value;
+        const password = $('#register-password').value;
+        try {
+            await window.createUserWithEmailAndPassword(window.auth, email, password);
+            // El usuario se crea e ingresa automáticamente
+        } catch (error) {
+            toast('Error al crear cuenta. Quizás el correo ya está en uso.');
+        }
+    });
+}
+
+window.onAuthStateChanged(window.auth, (user) => {
+    const isAuthPage = document.body.dataset.page === 'login' || document.body.dataset.page === 'register';
+    
+    if (user) {
+        currentUser = user; // Guardamos quién es el usuario
+        if (isAuthPage) {
+            location.href = 'index.html'; // Si está logueado y abre /ingresar, mandarlo al panel
+        } else {
+            fetchEquipos(user.uid); // Descargar SOLO sus equipos
+            fetchServicios(); // Descargar el catálogo (es público)
+        }
+    } else {
+        currentUser = null;
+        if (!isAuthPage) {
+            location.href = 'ingresar.html'; // Si NO está logueado y quiere ver equipos, expulsarlo al login
+        }
+    }
+});
 $('#service-form').addEventListener('submit', async ev => {
     ev.preventDefault();
     const name = $('#service-name').value.trim();

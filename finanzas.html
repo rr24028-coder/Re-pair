@@ -44,6 +44,10 @@
                 <a class="nav-link" href="diagnostico.html">Diagnóstico</a>
                 <a class="nav-link active" href="finanzas.html" aria-current="page">Finanzas</a>
             </nav>
+            </div>
+                <button id="logout-btn" class="btn ghost small" style="margin-left: auto; color: var(--peach-ink);">
+        Cerrar sesión
+    </button>
         </header>
 
         <main class="main">
@@ -124,24 +128,36 @@
     </div>
     <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
   const firebaseConfig = {
-  apiKey: "AIzaSyB8q0dzo5W3DYb1920keTFNwjNtoPr_PL4",
-  authDomain: "re-pear-web.firebaseapp.com",
-  projectId: "re-pear-web",
-  storageBucket: "re-pear-web.firebasestorage.app",
-  messagingSenderId: "932851115801",
-  appId: "1:932851115801:web:491a62ddd96dae78e18788"
-};
+    apiKey: "AIzaSyB8q0dzo5W3DYb1920keTFNwjNtoPr_PL4",
+    authDomain: "re-pear-web.firebaseapp.com",
+    projectId: "re-pear-web",
+    storageBucket: "re-pear-web.firebasestorage.app",
+    messagingSenderId: "932851115801",
+    appId: "1:932851115801:web:491a62ddd96dae78e18788"
+  };
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const auth = getAuth(app);
 
   window.db = db;
   window.collection = collection;
   window.addDoc = addDoc;
   window.getDocs = getDocs;
+  window.doc = doc;
+  window.updateDoc = updateDoc;
+  window.query = query;
+  window.where = where;
+  
+  window.auth = auth;
+  window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+  window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+  window.onAuthStateChanged = onAuthStateChanged;
+  window.signOut = signOut;
 </script>
     <script src="app.js"></script>
 </body>
