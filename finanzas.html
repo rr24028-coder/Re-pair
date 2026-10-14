@@ -45,9 +45,9 @@
                 <a class="nav-link active" href="finanzas.html" aria-current="page">Finanzas</a>
             </nav>
             </div>
-                <button id="logout-btn" class="btn ghost small" style="margin-left: auto; color: var(--peach-ink);">
-        Cerrar sesión
-    </button>
+            <button id="logout-btn" class="btn ghost small" style="margin-left: auto; color: var(--peach-ink); display: none;">
+    Cerrar sesión
+</button>
         </header>
 
         <main class="main">
@@ -159,6 +159,6 @@
   window.onAuthStateChanged = onAuthStateChanged;
   window.signOut = signOut;
 </script>
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>

@@ -187,6 +187,12 @@ document.addEventListener('click', ev => {
     if (target.dataset.action === 'new-equipment') openEquipment();
     if (target.dataset.edit) openEquipment(target.dataset.edit);
     if (target.id === 'print-invoice') window.print();
+    if (target.id === 'logout-btn' || target.closest('#logout-btn')) {
+        window.signOut(window.auth).then(() => {
+            sessionStorage.setItem('repear-flash', 'Has cerrado sesión correctamente.');
+            location.href = 'ingresar.html';
+        });
+    }
 });
 
 $('#equipment-form').addEventListener('submit', async ev => {
@@ -283,24 +289,30 @@ if (registerForm.addEventListener) {
     });
 }
 
+// Observador Global de Sesión
 window.onAuthStateChanged(window.auth, (user) => {
     const isAuthPage = document.body.dataset.page === 'login' || document.body.dataset.page === 'register';
     
     if (user) {
-        currentUser = user; // Guardamos quién es el usuario
+        currentUser = user; 
+        if (document.getElementById('logout-btn')) {
+            document.getElementById('logout-btn').style.display = 'inline-flex';
+        }
+
         if (isAuthPage) {
-            location.href = 'index.html'; // Si está logueado y abre /ingresar, mandarlo al panel
+            location.href = 'index.html'; 
         } else {
-            fetchEquipos(user.uid); // Descargar SOLO sus equipos
-            fetchServicios(); // Descargar el catálogo (es público)
+            fetchEquipos(user.uid); 
+            fetchServicios(); 
         }
     } else {
         currentUser = null;
         if (!isAuthPage) {
-            location.href = 'ingresar.html'; // Si NO está logueado y quiere ver equipos, expulsarlo al login
+            location.href = 'ingresar.html'; 
         }
     }
 });
+
 $('#service-form').addEventListener('submit', async ev => {
     ev.preventDefault();
     const name = $('#service-name').value.trim();
