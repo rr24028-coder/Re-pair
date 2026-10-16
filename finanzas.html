@@ -33,26 +33,26 @@
 
     <div class="shell">
         <header class="topbar">
-            <a href="index.html" class="brand" aria-label="Re-pear, Inicio">
+            <a href="panel.html" class="brand" aria-label="Re-pear, Inicio">
                 <svg aria-hidden="true"><use href="#pear-fruit"/></svg>
                 <span>Re<em>-</em>pear</span>
             </a>
             <nav class="mainnav" id="sidebar">
-                <a class="nav-link" href="index.html">Inicio</a>
-                <a class="nav-link" href="equipos.html">Mis equipos</a>
-                <a class="nav-link" href="ordenes.html">Órdenes</a>
-                <a class="nav-link" href="diagnostico.html">Diagnóstico</a>
-                <a class="nav-link active" href="finanzas.html" aria-current="page">Finanzas</a>
+                <a class="nav-link" href="panel.html">Inicio</a>
+                <a class="nav-link" id="nav-equipos" href="equipos.html">Mis equipos</a>
+                <a class="nav-link" id="nav-ordenes" href="ordenes.html">Órdenes</a>
+                <a class="nav-link" id="nav-diagnostico" href="diagnostico.html">Diagnóstico</a>
+                <a class="nav-link active" id="nav-finanzas" href="finanzas.html" aria-current="page">Finanzas</a>
             </nav>
             <div style="margin-left: auto; display: flex; gap: 15px; align-items: center;">
-            <a href="ingresar.html" id="login-btn" class="btn outline small" style="display: none;">Ingresar</a>
-            <button id="logout-btn" class="btn small" style="background-color: var(--peach-ink); color: white; display: none;">Cerrar sesión</button>
-     </div>
-    </header>
+    <a href="ingresar.html" id="login-btn" class="btn outline small" style="display: none;">Ingresar</a>
+    <button id="logout-btn" class="btn small" style="background-color: var(--peach-ink); color: white; display: none;">Cerrar sesión</button>
+</div>
+        </header>
 
         <main class="main">
             <nav class="crumbs" id="breadcrumbs" aria-label="Ruta de navegación">
-                <a href="index.html">Inicio</a>
+                <a href="panel.html">Inicio</a>
                 <span aria-hidden="true">/</span>
                 <span>Administración</span>
                 <span aria-hidden="true">/</span>
@@ -91,19 +91,11 @@
                                 <th>Servicio</th>
                                 <th>Costo real</th>
                                 <th>Recargo (%)</th>
-                                <th>Precio de venta</th>                            </tr>
+                                <th>Precio de venta</th>
+                            </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Limpieza básica PC</strong></td>
-                                <td><input type="number" min="0" step="0.01" value="10" aria-label="Costo"></td>
-                                <td><input type="number" min="0" max="10000" step="0.01" value="100" aria-label="Recargo"></td>
-                                <td class="mono">$20.00</td>                            </tr>
-                            <tr>
-                                <td><strong>Diagnóstico PC Desktop</strong></td>
-                                <td><input type="number" min="0" step="0.01" value="15" aria-label="Costo"></td>
-                                <td><input type="number" min="0" max="10000" step="0.01" value="80" aria-label="Recargo"></td>
-                                <td class="mono">$27.00</td>                            </tr>
+                        <tbody id="services-body">
+                            <tr><td colspan="4" style="text-align:center;padding:30px;color:var(--muted);">Cargando servicios…</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -114,7 +106,7 @@
     </div>
     <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
   const firebaseConfig = {
@@ -138,6 +130,9 @@
   window.updateDoc = updateDoc;
   window.query = query;
   window.where = where;
+  window.setDoc = setDoc;
+  window.getDoc = getDoc;
+  window.onSnapshot = onSnapshot;
   
   window.auth = auth;
   window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;

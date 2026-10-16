@@ -13,7 +13,10 @@ const ICONS = {
     "close": "<path d=\"m6 6 12 12M18 6 6 18\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" fill=\"none\"/>"
 };
 
-const $ = s => document.querySelector(s) || Object.assign(document.createElement('div'), {value: ''});const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = s => document.querySelector(s) || Object.assign(document.createElement('div'), {value: ''});
+// Devuelve un arreglo real (no NodeList) para poder usar indexOf, forEach, etc.
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const icon = n => `<svg class="icon" aria-hidden="true"><use href="#${n}"/></svg>`;
 const money = n => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(n);
 const round = n => Math.round((n + Number.EPSILON) * 100) / 100;
@@ -24,35 +27,40 @@ const writeStore = (key, data) => { try { localStorage.setItem(key, JSON.stringi
 let equipment = [];
 let currentUser = null;
 
-async function fetchEquipos(uid) {
-    try {
-        // Creamos una consulta: Traer equipos SOLO donde el 'uid' coincida con el usuario actual
-        const q = window.query(window.collection(window.db, "equipos"), window.where("uid", "==", uid));
-        const querySnapshot = await window.getDocs(q);
-        
+// Escuchas en tiempo real (onSnapshot). Se guarda la función para cancelar
+// la escucha anterior si se vuelve a llamar, así nunca hay dos activas.
+let unsubEquipos = null;
+let unsubServicios = null;
+
+function fetchEquipos(uid) {
+    if (!uid) return;
+    if (unsubEquipos) unsubEquipos();
+    // Solo los equipos cuyo 'uid' coincide con el usuario actual
+    const q = window.query(window.collection(window.db, "equipos"), window.where("uid", "==", uid));
+    unsubEquipos = window.onSnapshot(q, (querySnapshot) => {
         equipment = [];
         querySnapshot.forEach((documento) => {
             equipment.push({ id: documento.id, ...documento.data() });
         });
         renderEquipment();
-    } catch (error) {
-        console.error("Error al cargar equipos:", error);
-    }
+    }, (error) => {
+        console.error("Error al escuchar equipos:", error);
+    });
 }
 
 let services = [];
 
-async function fetchServicios() {
-    try {
-        const querySnapshot = await window.getDocs(window.collection(window.db, "servicios"));
+function fetchServicios() {
+    if (unsubServicios) unsubServicios();
+    unsubServicios = window.onSnapshot(window.collection(window.db, "servicios"), (querySnapshot) => {
         services = [];
-        querySnapshot.forEach((doc) => {
-            services.push({ id: doc.id, ...doc.data() });
+        querySnapshot.forEach((documento) => {
+            services.push({ id: documento.id, ...documento.data() });
         });
         renderServices();
-    } catch (error) {
-        console.error(error);
-    }
+    }, (error) => {
+        console.error("Error al escuchar servicios:", error);
+    });
 }
 
 let invoice = readStore('repear-invoice', []);
@@ -82,6 +90,24 @@ document.body.insertAdjacentHTML('beforeend', `
             <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:24px;">
                 <button type="button" class="btn outline" data-close="equipment-dialog" style="background-color:#ddd;color:#333;">Cancelar</button>
                 <button class="btn primary">Guardar equipo</button>
+            </div>
+        </form>
+    </dialog>
+    <dialog id="service-dialog" style="border:1px solid var(--border);border-radius:28px;background:var(--surface);color:var(--ink);padding:0;width:min(480px, calc(100% - 28px));box-shadow:0 30px 90px #06241655;">
+        <div style="padding:24px 28px;border-bottom:1px solid var(--border);">
+            <h2 style="font-size:22px;margin:0;">Nuevo servicio</h2>
+        </div>
+        <form id="service-form" style="padding:28px;">
+            <div style="display:grid;gap:17px;">
+                <div><label style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;" for="service-name">Nombre del servicio</label><input id="service-name" required style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;"></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                    <div><label style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;" for="service-cost">Costo real ($)</label><input id="service-cost" type="number" min="0" step="0.01" required style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;"></div>
+                    <div><label style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;" for="service-markup">Recargo (%)</label><input id="service-markup" type="number" min="0" max="10000" step="0.01" value="100" required style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;"></div>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:24px;">
+                <button type="button" class="btn outline" data-close="service-dialog" style="background-color:#ddd;color:#333;">Cancelar</button>
+                <button class="btn primary">Guardar servicio</button>
             </div>
         </form>
     </dialog>
@@ -142,6 +168,11 @@ function renderEquipment() {
     }
 }
 
+// Buscador: filtra en memoria sobre `equipment` (ya descargado con onSnapshot),
+// sin consultar a Firebase. renderEquipment() lee el texto de #equipment-search.
+const equipmentSearch = document.getElementById('equipment-search');
+if (equipmentSearch) equipmentSearch.addEventListener('input', renderEquipment);
+
 function servicePrice(s) { return round(s.cost * (1 + s.markup / 100)); }
 
 function renderServices() {
@@ -154,6 +185,18 @@ function renderServices() {
                     <span style="font-family:var(--head);font-weight:700;font-size:32px;color:#fff;">${money(servicePrice(s))}</span>                </div>
             </div>`
         ).join('');
+    }
+
+    // Tabla del catálogo (finanzas.html)
+    if ($('#services-body').classList) {
+        $('#services-body').innerHTML = services.map(s =>
+            `<tr>
+                <td><strong>${esc(s.name)}</strong></td>
+                <td><input type="number" min="0" step="0.01" value="${esc(s.cost)}" aria-label="Costo" data-service="${esc(s.id)}" data-field="cost"></td>
+                <td><input type="number" min="0" max="10000" step="0.01" value="${esc(s.markup)}" aria-label="Recargo" data-service="${esc(s.id)}" data-field="markup"></td>
+                <td class="mono">${money(servicePrice(s))}</td>
+            </tr>`
+        ).join('') || '<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--muted);">Aún no hay servicios. Usa «Nuevo servicio» para crear el primero.</td></tr>';
     }
 
     if ($('#invoice-service').options) {
@@ -181,6 +224,10 @@ document.addEventListener('click', ev => {
     if (!target) return;
     if (target.dataset.close) $('#' + target.dataset.close).close();
     if (target.dataset.action === 'new-equipment') openEquipment();
+    if (target.id === 'new-service' || target.closest('#new-service')) {
+        $('#service-form').reset();
+        $('#service-dialog').showModal();
+    }
     if (target.dataset.edit) openEquipment(target.dataset.edit);
     if (target.id === 'print-invoice') window.print();
     if (target.id === 'logout-btn' || target.closest('#logout-btn')) {
@@ -223,7 +270,7 @@ $('#equipment-form').addEventListener('submit', async ev => {
             toast('Equipo registrado con éxito en la nube.');
         }
         $('#equipment-dialog').close();
-        fetchEquipos();
+        // onSnapshot actualiza la lista solo; no hace falta volver a pedir los datos.
     } catch (error) {
         console.error("Error al guardar:", error);
         toast('Error al conectar con la base de datos.');
@@ -263,48 +310,110 @@ if (loginForm.addEventListener) {
         const password = $('#login-password').value;
         try {
             await window.signInWithEmailAndPassword(window.auth, email, password);
-            // Si el login es correcto, el observador (abajo) lo mandará a index.html
+            // Si el login es correcto, el observador (abajo) lo mandará a panel.html
         } catch (error) {
             toast('Error: Credenciales incorrectas.');
         }
     });
 }
 
+// Toda cuenta nueva se guarda como "cliente".
+// Las cuentas de técnico se crean directamente en Firebase:
+// colección "usuarios", documento con el uid, campo rol: "tecnico".
+let registering = false;
 const registerForm = $('#register-form');
 if (registerForm.addEventListener) {
     registerForm.addEventListener('submit', async ev => {
         ev.preventDefault();
         const email = $('#register-email').value;
         const password = $('#register-password').value;
+
+        // El observador de sesión se salta la redirección mientras se guarda el rol.
+        registering = true;
+        let user;
         try {
-            await window.createUserWithEmailAndPassword(window.auth, email, password);
-            // El usuario se crea e ingresa automáticamente
+            const credential = await window.createUserWithEmailAndPassword(window.auth, email, password);
+            user = credential.user;
         } catch (error) {
-            toast('Error al crear cuenta. Quizás el correo ya está en uso.');
+            registering = false;
+            toast('Error al crear cuenta. Verifica tus datos o usa otro correo.');
+            return;
         }
+
+        try {
+            await window.setDoc(window.doc(window.db, "usuarios", user.uid), {
+                email: email,
+                rol: 'cliente'
+            });
+        } catch (error) {
+            // Sin documento de rol, la cuenta se trata como cliente.
+            console.error("No se pudo guardar el perfil:", error);
+        }
+        location.href = 'panel.html';
     });
 }
 
-// Observador Global de Sesión
-window.onAuthStateChanged(window.auth, (user) => {
-    const isAuthPage = document.body.dataset.page === 'login' || document.body.dataset.page === 'register';
-    
+// Observador Global de Sesión con control de vistas por rol
+const PRIVATE_PAGES = ['home', 'equipment', 'orders', 'diagnostic', 'finance'];
+const CLIENT_BLOCKED_PAGES = ['orders', 'diagnostic', 'finance'];
+
+window.onAuthStateChanged(window.auth, async (user) => {
+    const page = document.body.dataset.page;
+    const isAuthPage = page === 'login' || page === 'register';
+    const isPrivatePage = PRIVATE_PAGES.includes(page);
+
+    const loginBtn = document.getElementById('login-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const hideLink = id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; };
+
     if (user) {
-        currentUser = user; 
-        if (document.getElementById('logout-btn')) {
-            document.getElementById('logout-btn').style.display = 'inline-flex';
+        currentUser = user;
+        if (logoutBtn) logoutBtn.style.display = 'inline-flex';
+        if (loginBtn) loginBtn.style.display = 'none';
+
+        if (registering) return; // el registro guarda el rol y redirige por su cuenta
+        if (isAuthPage) {
+            location.href = 'panel.html';
+            return;
+        }
+        if (!isPrivatePage) return;
+
+        // Rol: sin documento en "usuarios" se trata como cliente.
+        // Si la lectura falla, no se restringe nada y la página carga normal.
+        let rol = null;
+        try {
+            const userDoc = await window.getDoc(window.doc(window.db, "usuarios", user.uid));
+            rol = userDoc.exists() ? userDoc.data().rol : 'cliente';
+        } catch (error) {
+            console.error("Error al obtener el rol:", error);
         }
 
-        if (isAuthPage) {
-            location.href = 'index.html'; 
-        } else {
-            fetchEquipos(user.uid); 
-            fetchServicios(); 
+        if (rol === 'tecnico') {
+            hideLink('nav-equipos');
+            if (page === 'equipment') {
+                location.href = 'diagnostico.html';
+                return;
+            }
+        } else if (rol) {
+            hideLink('nav-ordenes');
+            hideLink('nav-diagnostico');
+            hideLink('nav-finanzas');
+            if (CLIENT_BLOCKED_PAGES.includes(page)) {
+                location.href = 'equipos.html';
+                return;
+            }
         }
+
+        fetchEquipos(user.uid);
+        fetchServicios();
     } else {
         currentUser = null;
-        if (!isAuthPage) {
-            location.href = 'ingresar.html'; 
+        if (logoutBtn) logoutBtn.style.display = 'none';
+        if (loginBtn) loginBtn.style.display = 'inline-flex';
+
+        // Expulsar al login solo si intenta entrar a una página privada
+        if (isPrivatePage) {
+            location.href = 'ingresar.html';
         }
     }
 });
@@ -329,11 +438,28 @@ $('#service-form').addEventListener('submit', async ev => {
         await window.addDoc(window.collection(window.db, "servicios"), nuevoServicio);
         $('#service-dialog').close();
         toast('Servicio agregado al catálogo en la nube.');
-        fetchServicios();
+        // onSnapshot actualiza la tabla solo.
     } catch (error) {
+        console.error("Error al guardar servicio:", error);
         toast('Error al guardar en la base de datos.');
     }
 });
 
-fetchEquipos();
-fetchServicios();
+// Editar costo o recargo directamente en la tabla de finanzas.
+// Se guarda en Firestore y onSnapshot recalcula el precio de venta.
+document.addEventListener('change', async ev => {
+    const input = ev.target.closest('input[data-service]');
+    if (!input) return;
+    const value = input.valueAsNumber;
+    if (Number.isNaN(value) || value < 0) {
+        toast('Escribe un número válido.');
+        renderServices();
+        return;
+    }
+    try {
+        await window.updateDoc(window.doc(window.db, "servicios", input.dataset.service), { [input.dataset.field]: value });
+    } catch (error) {
+        console.error("Error al actualizar servicio:", error);
+        toast('No se pudo actualizar el servicio.');
+    }
+});

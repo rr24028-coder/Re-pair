@@ -53,16 +53,16 @@
 
     <div class="shell">
         <header class="topbar">
-            <a href="index.html" class="brand" aria-label="Re-pear, Inicio">
+            <a href="panel.html" class="brand" aria-label="Re-pear, Inicio">
                 <svg aria-hidden="true"><use href="#pear-fruit"/></svg>
                 <span>Re<em>-</em>pear</span>
             </a>
             <nav class="mainnav" id="sidebar" aria-label="Navegación principal">
-                <a class="nav-link" href="index.html">Inicio</a>
-                <a class="nav-link active" href="equipos.html" aria-current="page">Mis equipos<span class="count" id="equipment-count">02</span></a>
-                <a class="nav-link" href="ordenes.html">Órdenes</a>
-                <a class="nav-link" href="diagnostico.html">Diagnóstico</a>
-                <a class="nav-link" href="finanzas.html">Finanzas</a>
+                <a class="nav-link" href="panel.html">Inicio</a>
+                <a class="nav-link active" id="nav-equipos" href="equipos.html" aria-current="page">Mis equipos<span class="count" id="equipment-count">02</span></a>
+                <a class="nav-link" id="nav-ordenes" href="ordenes.html">Órdenes</a>
+                <a class="nav-link" id="nav-diagnostico" href="diagnostico.html">Diagnóstico</a>
+                <a class="nav-link" id="nav-finanzas" href="finanzas.html">Finanzas</a>
             </nav>
             <div style="margin-left: auto; display: flex; gap: 15px; align-items: center;">
     <a href="ingresar.html" id="login-btn" class="btn outline small" style="display: none;">Ingresar</a>
@@ -72,7 +72,7 @@
 
         <main class="main">
             <nav class="crumbs" id="breadcrumbs" aria-label="Ruta de navegación">
-                <a href="index.html">Inicio</a>
+                <a href="panel.html">Inicio</a>
                 <span aria-hidden="true">/</span>
                 <span>Mi cuenta</span>
                 <span aria-hidden="true">/</span>
@@ -159,7 +159,7 @@
     </div>
     <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
   const firebaseConfig = {
@@ -183,6 +183,9 @@
   window.updateDoc = updateDoc;
   window.query = query;
   window.where = where;
+  window.setDoc = setDoc;
+  window.getDoc = getDoc;
+  window.onSnapshot = onSnapshot;
   
   window.auth = auth;
   window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
