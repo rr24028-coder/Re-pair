@@ -41,7 +41,6 @@ async function fetchEquipos(uid) {
 }
 
 let services = [];
-let vat = 13; 
 
 async function fetchServicios() {
     try {
@@ -68,7 +67,6 @@ document.body.insertAdjacentHTML('beforeend', `
     <dialog id="equipment-dialog" style="border:1px solid var(--border);border-radius:28px;background:var(--surface);color:var(--ink);padding:0;width:min(570px, calc(100% - 28px));box-shadow:0 30px 90px #06241655;">
         <div style="padding:24px 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);">
             <h2 id="equipment-dialog-title" style="font-size:22px;margin:0;">Registrar computador</h2>
-            <button class="btn ghost icon-btn" data-close="equipment-dialog" style="padding:8px;border-radius:50%;width:36px;height:36px;display:grid;place-items:center;">${icon('close')}</button>
         </div>
         <form id="equipment-form" style="padding:28px;">
             <input type="hidden" id="equipment-id">
@@ -82,7 +80,7 @@ document.body.insertAdjacentHTML('beforeend', `
                 <div><label style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;">Especificaciones</label><input id="equipment-specs" required style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;"></div>
             </div>
             <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:24px;">
-                <button type="button" class="btn" data-close="equipment-dialog">Cancelar</button>
+                <button type="button" class="btn outline" data-close="equipment-dialog" style="background-color:#ddd;color:#333;">Cancelar</button>
                 <button class="btn primary">Guardar equipo</button>
             </div>
         </form>
@@ -138,7 +136,7 @@ function renderEquipment() {
                 <td>${esc(e.type)}</td>
                 <td>${esc(e.specs)}</td>
                 <td>${esc(e.service)}<small>${esc(e.status)}</small></td>
-                <td><button class="btn ghost small">Ver</button> <button class="btn small" data-edit="${esc(e.id)}">Editar</button></td>
+                <td><button class="btn ghost small">Ver</button> <button class="btn small" style="background-color:#f0f0f0;color:#000;" data-edit="${esc(e.id)}">Editar</button></td>
             </tr>`
         ).join('') || '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted);">No se encontraron equipos.</td></tr>';
     }
@@ -153,9 +151,7 @@ function renderServices() {
                 <div style="width:46px;height:46px;border-radius:15px;background:#ffffff14;color:var(--lime);display:grid;place-items:center;">${icon(s.icon || 'wrench')}</div>
                 <div><h3 style="font-size:21px;font-family:var(--head);">${esc(s.name)}</h3><p style="font-size:14px;color:#F0FAE6a8;margin-top:4px;">${esc(s.description)}</p></div>
                 <div style="margin-left:auto;text-align:right;">
-                    <span style="font-family:var(--head);font-weight:700;font-size:32px;color:#fff;">${money(servicePrice(s))}</span>
-                    <small style="display:block;font-family:var(--mono);font-size:11px;color:#F0FAE699;">+ ${vat}% IVA</small>
-                </div>
+                    <span style="font-family:var(--head);font-weight:700;font-size:32px;color:#fff;">${money(servicePrice(s))}</span>                </div>
             </div>`
         ).join('');
     }
@@ -238,7 +234,7 @@ if ($('#tabs').classList) {
     const TABS = [
         {t:'Un especialista revisa cada componente', p:'Pruebas de estrés, temperatura y estabilidad. Cada observación queda en un reporte que podés leer cuando quieras.', a:'diagnostico.html'},
         {t:'Limpieza interna y pasta térmica nueva', p:'Retiramos el polvo de ventiladores y disipador, y renovamos la pasta térmica para que el equipo vuelva a rendir.', a:'finanzas.html'},
-        {t:'Cada dólar, con su detalle', p:'El precio sale del costo del servicio más un recargo, y el IVA se calcula sobre el subtotal. Sin cargos escondidos.', a:'finanzas.html'},
+        {t:'Cada dólar, con su detalle', p:'El precio sale del costo del servicio más un recargo. Sin cargos escondidos.', a:'finanzas.html'},
         {t:'Sabé en qué paso va tu equipo', p:'Consultá el estado de cada orden y quién la atiende. Al terminar, el reporte y la factura te esperan en el mismo lugar.', a:'ordenes.html'}
     ];
     $('#tabs').addEventListener('click', e => {         const btns = $$('.tab');

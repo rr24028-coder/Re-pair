@@ -6,7 +6,7 @@
     <meta name="color-scheme" content="light dark">
     
     <title>Finanzas y catálogo · Re-pear</title>
-    <meta name="description" content="Gestión administrativa, control de costos, recargos e IVA de servicios.">
+    <meta name="description" content="Gestión administrativa, control de costos y recargos de servicios.">
     <meta name="robots" content="noindex, nofollow">
 
     <link rel="icon" href="assets/favicon-fresh.svg" type="image/svg+xml">
@@ -45,9 +45,10 @@
                 <a class="nav-link active" href="finanzas.html" aria-current="page">Finanzas</a>
             </nav>
             </div>
-            <button id="logout-btn" class="btn ghost small" style="margin-left: auto; color: var(--peach-ink); display: none;">
-    Cerrar sesión
-</button>
+            <div style="margin-left: auto; display: flex; gap: 15px; align-items: center;">
+    <a href="ingresar.html" id="login-btn" class="btn outline small" style="display: none;">Ingresar</a>
+    <button id="logout-btn" class="btn small" style="background-color: var(--peach-ink); color: white; display: none;">Cerrar sesión</button>
+</div>
         </header>
 
         <main class="main">
@@ -56,7 +57,7 @@
                 <span aria-hidden="true">/</span>
                 <span>Administración</span>
                 <span aria-hidden="true">/</span>
-                <span aria-current="page">Catálogo de servicios e IVA</span>
+                <span aria-current="page">Catálogo de servicios</span>
             </nav>
 
             <section class="screen" id="finance">
@@ -64,7 +65,7 @@
                     <div>
                         <div class="eyebrow">Administración</div>
                         <h1>Finanzas y catálogo</h1>
-                        <p>Costos, recargo sobre el costo y precios finales con IVA.</p>
+                        <p>Costos, recargo sobre el costo y precios finales.</p>
                     </div>
                     <button class="btn primary" id="new-service"><svg class="icon"><use href="#plus"/></svg>Nuevo servicio</button>
                 </div>
@@ -78,18 +79,10 @@
                         <div class="stat-top">Margen bruto general<svg class="icon"><use href="#bar-chart-3"/></svg></div>
                         <strong class="mono" style="font-size:26px">48.5%</strong>
                     </div>
-                    <div class="stat panel">
-                        <div class="stat-top">IVA reportado<svg class="icon"><use href="#receipt"/></svg></div>
-                        <strong class="mono" style="font-size:26px">$188.50</strong>
-                    </div>
                 </div>
 
                 <div class="section-head" style="margin-top: 30px;">
                     <h2>Servicios y precios</h2>
-                    <div class="vat-control">
-                        <label for="vat-rate" style="margin:0; font-size:13px; font-weight:600;">IVA (%)</label>
-                        <input id="vat-rate" type="number" min="0" max="100" step="0.01" value="13">
-                    </div>
                 </div>
 
                 <div class="panel table-wrap">
@@ -99,25 +92,19 @@
                                 <th>Servicio</th>
                                 <th>Costo real</th>
                                 <th>Recargo (%)</th>
-                                <th>Precio de venta</th>
-                                <th>Precio + IVA</th>
-                            </tr>
+                                <th>Precio de venta</th>                            </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td><strong>Limpieza básica PC</strong></td>
                                 <td><input type="number" min="0" step="0.01" value="10" aria-label="Costo"></td>
                                 <td><input type="number" min="0" max="10000" step="0.01" value="100" aria-label="Recargo"></td>
-                                <td class="mono">$20.00</td>
-                                <td class="mono" style="color:var(--accent); font-weight:700;">$22.60</td>
-                            </tr>
+                                <td class="mono">$20.00</td>                            </tr>
                             <tr>
                                 <td><strong>Diagnóstico PC Desktop</strong></td>
                                 <td><input type="number" min="0" step="0.01" value="15" aria-label="Costo"></td>
                                 <td><input type="number" min="0" max="10000" step="0.01" value="80" aria-label="Recargo"></td>
-                                <td class="mono">$27.00</td>
-                                <td class="mono" style="color:var(--accent); font-weight:700;">$30.51</td>
-                            </tr>
+                                <td class="mono">$27.00</td>                            </tr>
                         </tbody>
                     </table>
                 </div>
