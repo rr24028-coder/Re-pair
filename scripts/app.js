@@ -190,20 +190,6 @@ if (equipmentSearch) equipmentSearch.addEventListener('input', renderEquipment);
 function servicePrice(s) { return round(s.cost * (1 + s.markup / 100)); }
 
 function renderServices() {
-    if ($('#home-services').classList) {
-        $('#home-services').innerHTML = services.map(s => 
-            `<div style="display:flex;gap:16px;padding:24px 0;border-bottom:1px solid #ffffff1f;color:#F0FAE6;">
-                <div style="width:46px;height:46px;border-radius:15px;background:#ffffff14;color:var(--lime);display:grid;place-items:center;flex-shrink:0;">
-                    ${icon(s.icon || 'wrench')}
-                </div>
-                <div>
-                    <h3 style="font-size:21px;font-family:var(--head);">${esc(s.name)}</h3>
-                    <p style="font-size:14px;color:#F0FAE6a8;margin-top:6px;line-height:1.5;">${esc(s.description)}</p>
-                </div>
-            </div>`
-        ).join('') || '<div style="padding:40px;text-align:center;color:#F0FAE6a8;">Aún no hay servicios en el catálogo.</div>';
-    }
-
     // Tabla del catálogo (finanzas.html)
     if ($('#services-body').classList) {
         $('#services-body').innerHTML = services.map(s =>
