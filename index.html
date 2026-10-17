@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Re-pear | Expertos en Reparación</title>
     <meta name="description" content="Diagnóstico, limpieza y mantenimiento de computadores en San Salvador. Reporte técnico detallado, factura clara y seguimiento de cada orden.">
-    <link rel="icon" href="assets/favicon-fresh.svg" type="image/svg+xml">
+    <link rel="icon" href="imagenes/iconos/favicon-fresh.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="estilos/index.css">
 </head>
 <body class="landing-body">
     <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
@@ -30,8 +30,8 @@
                 <span class="brand-logo">Re<em>-</em>pear</span>
             </a>
             <div class="landing-nav">
-                <a href="ingresar.html" class="btn primary small">Ingresar</a>
-                <a href="registro.html" class="btn small">Crear cuenta</a>
+                <a href="vistas/publicas/ingresar.html" class="btn primary small">Ingresar</a>
+                <a href="vistas/publicas/registro.html" class="btn small">Crear cuenta</a>
             </div>
         </div>
     </header>
@@ -43,8 +43,8 @@
                     <h1 class="hero-title">Reparamos tu equipo.<br><span class="highlight">Recuperamos tu tranquilidad.</span></h1>
                     <p class="hero-subtitle">El sistema de gestión técnica y atención al cliente más transparente. Monitorea el estado de tus reparaciones en tiempo real.</p>
                     <div class="hero-actions">
-                        <a href="registro.html" class="hero-btn">Comienza ahora</a>
-                        <a href="ingresar.html" class="hero-link">Ya tengo una cuenta</a>
+                        <a href="vistas/publicas/registro.html" class="hero-btn">Comienza ahora</a>
+                        <a href="vistas/publicas/ingresar.html" class="hero-link">Ya tengo una cuenta</a>
                     </div>
                 </div>
 
@@ -113,7 +113,7 @@
                 <div class="services-copy">
                     <h2 id="servicios-title" class="section-title">Servicios con el precio a la vista</h2>
                     <p>Cada orden muestra el detalle de lo que se cobra. Sin cargos escondidos.</p>
-                    <a href="registro.html" class="btn primary">Crear cuenta</a>
+                    <a href="vistas/publicas/registro.html" class="btn primary">Crear cuenta</a>
                 </div>
                 <ul class="price-list">
                     <li>
@@ -134,22 +134,136 @@
             </div>
         </section>
 
+        <!-- Nueva sección: Componentes -->
+        <section class="section" aria-labelledby="componentes-title">
+            <div class="container">
+                <h2 id="componentes-title" class="section-title">Conoce tu computadora</h2>
+                <div class="components-grid">
+                    
+                    <article class="component-card">
+                        <div class="component-img-placeholder">
+                            <img src="imagenes/componentes/cpu.png" alt="" aria-hidden="true">
+                            <span>Espacio para imagen</span>
+                        </div>
+                        <h3>1. Procesador (CPU)</h3>
+                        <p><strong>Definición:</strong> Es considerado el cerebro de la computadora. Se encarga de interpretar las instrucciones de los programas y procesar todos los datos.</p>
+                        <p><strong>Función principal:</strong> Realiza cálculos lógicos, matemáticos y coordina el funcionamiento de los demás componentes del sistema. Las marcas más conocidas son Intel y AMD.</p>
+                    </article>
+
+                    <article class="component-card">
+                        <div class="component-img-placeholder">
+                            <img src="imagenes/componentes/ram.png" alt="" aria-hidden="true">
+                            <span>Espacio para imagen</span>
+                        </div>
+                        <h3>2. Memoria RAM</h3>
+                        <p><strong>Definición:</strong> Es la memoria de trabajo temporal del equipo.</p>
+                        <p><strong>Función principal:</strong> Almacena de forma rápida y momentánea los datos de los programas y aplicaciones que estás usando en el momento. A mayor cantidad de RAM, más aplicaciones puedes abrir simultáneamente sin que la computadora se vuelva lenta. Los datos se borran cuando apagas el equipo.</p>
+                    </article>
+
+                    <article class="component-card">
+                        <div class="component-img-placeholder">
+                            <img src="imagenes/componentes/hdd.png" alt="" aria-hidden="true">
+                            <span>Espacio para imagen</span>
+                        </div>
+                        <h3>3. Almacenamiento (HDD o SSD)</h3>
+                        <p><strong>Definición:</strong> Es el componente encargado de guardar la información de forma permanente.</p>
+                        <p><strong>Función principal:</strong> Almacena el sistema operativo (como Windows o Linux), tus documentos, fotos, videos y juegos. Los discos SSD son mucho más rápidos que los antiguos HDD, lo que permite que la computadora encienda y cargue programas en pocos segundos.</p>
+                    </article>
+
+                    <article class="component-card">
+                        <div class="component-img-placeholder">
+                            <img src="imagenes/componentes/mb.png" alt="" aria-hidden="true">
+                            <span>Espacio para imagen</span>
+                        </div>
+                        <h3>4. Tarjeta Madre</h3>
+                        <p><strong>Definición:</strong> Es la placa de circuito impreso principal que sirve como columna vertebral de la computadora.</p>
+                        <p><strong>Función principal:</strong> Conecta y comunica físicamente al procesador, la memoria RAM, los discos de almacenamiento y las tarjetas de expansión entre sí, además de suministrarles energía eléctrica.</p>
+                    </article>
+
+                    <article class="component-card">
+                        <div class="component-img-placeholder">
+                            <img src="imagenes/componentes/psu.png" alt="" aria-hidden="true">
+                            <span>Espacio para imagen</span>
+                        </div>
+                        <h3>5. Fuente de Poder</h3>
+                        <p><strong>Definición:</strong> Es el dispositivo que transforma la corriente eléctrica alterna de la pared en corriente continua de menor voltaje.</p>
+                        <p><strong>Función principal:</strong> Alimenta de energía estable y segura a todos los componentes internos de la computadora para que puedan funcionar correctamente.</p>
+                    </article>
+
+                    <article class="component-card">
+                        <div class="component-img-placeholder">
+                            <img src="imagenes/componentes/gpu.png" alt="" aria-hidden="true">
+                            <span>Espacio para imagen</span>
+                        </div>
+                        <h3>6. Tarjeta Gráfica (GPU)</h3>
+                        <p><strong>Definición:</strong> Es el componente dedicado al procesamiento de datos relacionados con el video, la imagen y los gráficos en pantalla.</p>
+                        <p><strong>Función principal:</strong> Permite renderizar imágenes complejas de alta calidad. Es fundamental para videojuegos, diseño gráfico profesional, edición de video y renderizado 3D. Puede venir integrada en el procesador o ser una tarjeta independiente (dedicada).</p>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-tint" aria-labelledby="manuales-title">
+            <div class="container">
+                <h2 id="manuales-title" class="section-title">Guías y Manuales Técnicos UES</h2>
+                <div class="resources-grid">
+                    
+                    <article class="resource-card">
+                        <h3>OBS Studio y SRT</h3>
+                        <p>Guía de instalación de OBS Studio y configuración de conexión SRT entre caller y listener.</p>
+                        <a href="guias/multimedia/guia-obs-srt-caller-listener.pdf" target="_blank" class="btn small">Leer manual</a>
+                    </article>
+
+                    <article class="resource-card">
+                        <h3>CivilCAD y Civil 3D</h3>
+                        <p>Instalación de CivilCAD (Sivan Design) y Civil 3D (Autodesk) en Windows.</p>
+                        <a href="guias/ingenieria/guia-instalacion-civilcad-civil3d.pdf" target="_blank" class="btn small">Leer manual</a>
+                    </article>
+
+                    <article class="resource-card">
+                        <h3>Dual Boot: Windows + Debian</h3>
+                        <p>Guía para configurar un arranque dual (Dual boot) con Windows y Debian 13 (Trixie) en equipos UEFI.</p>
+                        <a href="guias/sistemas/guia-dual-boot-debian-trixie.pdf" target="_blank" class="btn small">Leer manual</a>
+                    </article>
+
+                    <article class="resource-card">
+                        <h3>Software TermoGraf</h3>
+                        <p>Guía explicativa, requisitos de Java y configuración de TermoGraf.</p>
+                        <a href="guias/ingenieria/Guia_TermoGraf_Instalacion.pdf" target="_blank" class="btn small">Leer manual</a>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
         <section class="cta-band" aria-labelledby="cta-title">
             <div class="container cta-inner">
                 <svg class="cta-pear" aria-hidden="true"><use href="#pear-fruit"/></svg>
                 <h2 id="cta-title">Dale una segunda vida a tu equipo.</h2>
                 <p>Registra tu computador y sigue cada paso del servicio desde tu cuenta.</p>
                 <div class="cta-actions">
-                    <a href="registro.html" class="btn-lime">Crear cuenta</a>
-                    <a href="ingresar.html" class="btn-ghost-light">Ingresar</a>
+                    <a href="vistas/publicas/registro.html" class="btn-lime">Crear cuenta</a>
+                    <a href="vistas/publicas/ingresar.html" class="btn-ghost-light">Ingresar</a>
                 </div>
             </div>
         </section>
     </main>
 
     <footer class="site-foot">
-        <div class="container">
-            <span>© 2026 Re-pear. Diagnóstico directo. Rendimiento real.</span>
+        <div class="container foot-grid">
+            <div class="foot-copy">
+                <span class="brand-logo" style="font-size: 1.3rem;">Re<em>-</em>pear</span>
+                <p>© 2026 Re-pear. Diagnóstico directo. Rendimiento real.</p>
+            </div>
+            <div class="foot-social">
+                <p>Síguenos en nuestras redes</p>
+                <div class="social-links">
+                    <a href="#" class="social-btn">Facebook</a>
+                    <a href="#" class="social-btn">Instagram</a>
+                    <a href="#" class="social-btn">X (Twitter)</a>
+                </div>
+            </div>
         </div>
     </footer>
 </body>
