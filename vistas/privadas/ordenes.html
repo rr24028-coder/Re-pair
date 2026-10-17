@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es-SV">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    
+    <title>Órdenes de servicio · Re-pear</title>
+    <meta name="description" content="Seguimiento transparente del estado de tus órdenes de servicio técnico y descarga de facturas.">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Órdenes de servicio · Re-pear">
+    <meta property="og:description" content="Sigue el estado de tus computadores y visualiza reportes técnicos detallados.">
+    <meta property="og:image" content="https://rr24028-coder.github.io/Re-pair/imagenes/iconos/logo-re-pear-fresh.png">
+    <meta property="og:url" content="https://rr24028-coder.github.io/Re-pair/vistas/privadas/ordenes.html">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Órdenes de servicio · Re-pear">
+    <meta name="twitter:description" content="Sigue el estado de tus computadores y visualiza reportes técnicos detallados.">
+    <meta name="twitter:image" content="https://rr24028-coder.github.io/Re-pair/imagenes/iconos/logo-re-pear-fresh.png">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Órdenes de servicio · Re-pear",
+        "description": "Seguimiento de órdenes y facturación de mantenimiento de computadores.",
+        "url": "https://rr24028-coder.github.io/Re-pair/vistas/privadas/ordenes.html"
+    }
+    </script>
+
+    <link rel="icon" href="../../imagenes/iconos/favicon-fresh.svg" type="image/svg+xml">
+    <link rel="alternate icon" href="../../imagenes/iconos/favicon.ico" sizes="32x32">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../estilos/ordenes.css">
+</head>
+<body data-page="orders">
+    <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+        <defs id="icon-defs">
+            <symbol id="pear-fruit" viewBox="0 0 64 64">
+                <path d="M32 17C22 17 22 29 17 36C6 52 17 61 32 61S58 52 47 36C42 29 42 17 32 17Z" fill="#A5D95C"/>
+                <path d="M32 18V10H43V5" fill="none" stroke="#1B4332" stroke-width="3.5" stroke-linecap="round"/>
+                <circle cx="43" cy="5" r="3" fill="#FF8A5B"/>
+                <path d="M31 14C23 14 21 10 22 5C28 5 32 8 31 14Z" fill="#2D6A4F"/>
+            </symbol>
+            <symbol id="receipt" viewBox="0 0 24 24"><path d="M4 3l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1v19l-2-1-2 1-2-1-2 1-2-1-2 1-2-1-2 1V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7h8m-8 5h8m-8 5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+        </defs>
+    </svg>
+
+    <div class="shell">
+        <header class="topbar">
+            <a href="panel.html" class="brand" aria-label="Re-pear, Inicio">
+                <svg aria-hidden="true"><use href="#pear-fruit"/></svg>
+                <span>Re<em>-</em>pear</span>
+            </a>
+            <nav class="mainnav" id="sidebar" aria-label="Navegación principal">
+                <a class="nav-link" href="panel.html">Inicio</a>
+                <a class="nav-link" id="nav-equipos" href="equipos.html">Mis equipos</a>
+                <a class="nav-link active" id="nav-ordenes" href="ordenes.html" aria-current="page">Órdenes</a>
+                <a class="nav-link" id="nav-diagnostico" href="diagnostico.html">Diagnóstico</a>
+                <a class="nav-link" id="nav-finanzas" href="finanzas.html">Finanzas</a>
+            </nav>
+            <div style="margin-left: auto; display: flex; gap: 15px; align-items: center;">
+    <a href="../publicas/ingresar.html" id="login-btn" class="btn outline small" style="display: none;">Ingresar</a>
+    <button id="logout-btn" class="btn small" style="background-color: var(--peach-ink); color: white; display: none;">Cerrar sesión</button>
+</div>
+        </header>
+
+        <main class="main">
+            <nav class="crumbs" id="breadcrumbs" aria-label="Ruta de navegación">
+                <a href="panel.html">Inicio</a>
+                <span aria-hidden="true">/</span>
+                <span>Mi cuenta</span>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">Órdenes de servicio</span>
+            </nav>
+
+            <section class="screen" id="orders">
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow">Portal del cliente</div>
+                        <h1>Órdenes de servicio</h1>
+                        <p>Seguimiento de estado y reportes técnicos.</p>
+                    </div>
+                </div>
+
+                <div class="panel table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Orden</th>
+                                <th>Equipo</th>
+                                <th>Servicio principal</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="mono">#ORD-2026-104</td>
+                                <td>PC Desktop Ryzen 7</td>
+                                <td>Mantenimiento y diagnóstico</td>
+                                <td><span class="badge ready"><span class="dot"></span>Listo para entrega</span></td>
+                                <td><a href="diagnostico.html" class="btn small" style="background-color: #f0f0f0; color: #000;">Reporte y factura</a></td>
+                            </tr>
+                            <tr>
+                                <td class="mono">#ORD-2026-103</td>
+                                <td>MacBook Pro M1 16″</td>
+                                <td>Diagnóstico de rendimiento</td>
+                                <td><span class="badge neutral"><span class="dot"></span>En diagnóstico</span></td>
+                                <td><button class="btn small" style="background-color: #f0f0f0; color: #000;">Ver seguimiento</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="panel report" id="order-report" hidden>
+                    <div class="section-head">
+                        <div>
+                            <div class="eyebrow">Reporte técnico + factura</div>
+                            <h2>#ORD-2026-104</h2>
+                        </div>
+                        <button class="btn" id="print-invoice"><svg class="icon"><use href="#receipt"/></svg>Imprimir / PDF</button>
+                    </div>
+                    <p><strong>Cliente:</strong> Juan Pérez · <strong>Equipo:</strong> PC Desktop Ryzen 7</p>
+                    <div class="two-col" style="margin-top:22px">
+                        <div>
+                            <h3>Diagnóstico del especialista</h3>
+                            <p>Presencia de pasta térmica degradada. Se realizó limpieza de polvo y mantenimiento de ventiladores.</p>
+                            <p class="muted">CPU: 95 °C en prueba inicial. Se recomienda realizar una prueba de estabilidad después del mantenimiento.</p>
+                        </div>
+                        <div>
+                            <h3>Servicios facturados</h3>
+                            <div class="invoice-items">
+                                <div class="invoice-item">
+                                    <span>Limpieza profunda + pasta térmica × 1</span>
+                                    <span class="mono">$35.00</span>
+                                </div>
+                                <div class="invoice-item">
+                                    <span>Diagnóstico de rendimiento × 1</span>
+                                    <span class="mono">$20.00</span>
+                                </div>
+                            </div>
+                            <div class="totals">
+                                <div class="total"><span>Total</span><span class="mono" style="font-size:19px">$55.00</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="notice">Documento de ejemplo. No es un comprobante fiscal.</div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB8q0dzo5W3DYb1920keTFNwjNtoPr_PL4",
+    authDomain: "re-pear-web.firebaseapp.com",
+    projectId: "re-pear-web",
+    storageBucket: "re-pear-web.firebasestorage.app",
+    messagingSenderId: "932851115801",
+    appId: "1:932851115801:web:491a62ddd96dae78e18788"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  window.db = db;
+  window.collection = collection;
+  window.addDoc = addDoc;
+  window.getDocs = getDocs;
+  window.doc = doc;
+  window.updateDoc = updateDoc;
+  window.query = query;
+  window.where = where;
+  window.setDoc = setDoc;
+  window.getDoc = getDoc;
+  window.onSnapshot = onSnapshot;
+  
+  window.auth = auth;
+  window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+  window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+  window.onAuthStateChanged = onAuthStateChanged;
+  window.signOut = signOut;
+</script>
+<script type="module" src="../../scripts/app.js"></script>
+</body>
+</html>
