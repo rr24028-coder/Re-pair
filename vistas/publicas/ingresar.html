@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light dark">
-    
+    <meta name="color-scheme" content="light">
+
     <title>Ingresar · Re-pear</title>
     <meta name="description" content="Accede a tu cuenta de Re-pear para gestionar tus computadores.">
     <meta name="robots" content="noindex, nofollow">
@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../estilos/ingresar.css">
+    <link rel="stylesheet" href="../../estilos/auth.css">
 </head>
 <body data-page="login">
     <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
@@ -24,34 +24,90 @@
                 <circle cx="43" cy="5" r="3" fill="#FF8A5B"/>
                 <path d="M31 14C23 14 21 10 22 5C28 5 32 8 31 14Z" fill="#2D6A4F"/>
             </symbol>
+            <symbol id="wrench" viewBox="0 0 24 24"><path d="M14.5 6.5a5 5 0 0 0-6.7 6.7L3 18a2.1 2.1 0 0 0 3 3l4.8-4.8a5 5 0 0 0 6.7-6.7L14 13l-3-3 3.5-3.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+            <symbol id="file-text" viewBox="0 0 24 24"><path d="M14 2H5a1 1 0 0 0-1 1v18a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V8l-6-6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M14 2v6h6M8 13h8m-8 4h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></symbol>
+            <symbol id="receipt" viewBox="0 0 24 24"><path d="M4 3l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1v19l-2-1-2 1-2-1-2 1-2-1-2 1-2-1-2 1V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M8 7h8m-8 5h8m-8 5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></symbol>
+            <symbol id="map-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5" fill="none"/></symbol>
+            <symbol id="share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></symbol>
         </defs>
     </svg>
 
-    <main class="main-auth">
-        <div class="panel auth-card">
-            <a href="../../index.html" class="brand" aria-label="Volver al inicio">
+    <div class="auth-shell">
+        <aside class="auth-side">
+            <svg class="auth-waves" viewBox="0 0 600 800" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M330 0H600V120C540 150 470 90 420 55C390 34 360 16 330 0Z" fill="#FF8A5B"/>
+                <path d="M0 800V672C80 632 150 702 240 682C330 662 400 602 470 622C520 636 560 672 600 662V800Z" fill="#2D6A4F"/>
+                <path d="M0 800V716C90 684 160 742 250 726C340 710 420 668 490 682C540 692 570 722 600 716V800Z" fill="#A5D95C"/>
+            </svg>
+
+            <a href="../../index.html" class="auth-brand" aria-label="Volver al inicio">
                 <svg aria-hidden="true"><use href="#pear-fruit"/></svg>
                 <span>Re<em>-</em>pear</span>
             </a>
-            
-            <h1>Ingresá a tu espacio.</h1>
-            <p class="muted">El estado de tus equipos, siempre a mano.</p>
-            
-            <form id="login-form" class="fields">
-                <div>
-                    <label for="login-email">Correo electrónico</label>
-                    <input type="email" id="login-email" autocomplete="email" required placeholder="tu@correo.com">
-                </div>
-                <div>
-                    <label for="login-password">Contraseña</label>
-                    <input type="password" id="login-password" minlength="6" autocomplete="current-password" required>
-                </div>
-                <button class="btn primary full-width">Ingresar</button>
-            </form>
-            
-            <a class="auth-links" href="registro.html">Crear una cuenta</a>
+
+            <div class="auth-copy">
+                <h2>Diagnóstico directo. Rendimiento real.</h2>
+                <p>Sigue cada paso del servicio de tu computador desde tu cuenta.</p>
+                <ul class="auth-points">
+                    <li>
+                        <span class="ic"><svg aria-hidden="true"><use href="#wrench"/></svg></span>
+                        <div><strong>Revisión por especialistas</strong><span>Pruebas de estrés, temperatura y estabilidad.</span></div>
+                    </li>
+                    <li>
+                        <span class="ic"><svg aria-hidden="true"><use href="#file-text"/></svg></span>
+                        <div><strong>Reporte técnico</strong><span>Cada observación queda por escrito.</span></div>
+                    </li>
+                    <li>
+                        <span class="ic"><svg aria-hidden="true"><use href="#receipt"/></svg></span>
+                        <div><strong>Factura clara</strong><span>El detalle de lo que se cobra, sin cargos escondidos.</span></div>
+                    </li>
+                </ul>
             </div>
-    </main>
+        </aside>
+
+        <main class="auth-main">
+            <div class="auth-card">
+                <h1>Ingresá a tu espacio.</h1>
+                <p class="muted">El estado de tus equipos, siempre a mano.</p>
+
+                <form id="login-form" class="fields">
+                    <div>
+                        <label for="login-email">Correo electrónico</label>
+                        <input type="email" id="login-email" autocomplete="email" placeholder="tu@correo.com" required>
+                    </div>
+                    <div>
+                        <label for="login-password">Contraseña</label>
+                        <input type="password" id="login-password" minlength="6" autocomplete="current-password" required>
+                    </div>
+                    <button class="btn primary full-width">Ingresar</button>
+                </form>
+
+                <a class="auth-links" href="registro.html">Crear una cuenta</a>
+            </div>
+
+            <aside class="auth-info" aria-label="Ubicación y redes sociales">
+                <div class="auth-info-item">
+                    <span class="ic"><svg aria-hidden="true"><use href="#map-pin"/></svg></span>
+                    <div>
+                        <strong>Ubicación</strong>
+                        <p>Universidad de El Salvador, Ciudad Universitaria, Final 25 Av. Norte, San Salvador.
+                           <a href="https://www.google.com/maps/search/?api=1&query=Universidad+de+El+Salvador+Ciudad+Universitaria+San+Salvador" target="_blank" rel="noopener">Ver en el mapa</a></p>
+                    </div>
+                </div>
+                <div class="auth-info-item">
+                    <span class="ic"><svg aria-hidden="true"><use href="#share"/></svg></span>
+                    <div>
+                        <strong>Síguenos en redes</strong>
+                        <div class="auth-social">
+                            <a href="#" target="_blank" rel="noopener">Facebook</a>
+                            <a href="#" target="_blank" rel="noopener">Instagram</a>
+                            <a href="#" target="_blank" rel="noopener">X (Twitter)</a>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
     <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -87,6 +143,6 @@
   window.onAuthStateChanged = onAuthStateChanged;
   window.signOut = signOut;
 </script>
-   <script type="module" src="../../scripts/app.js"></script>
+    <script type="module" src="../../scripts/app.js"></script>
 </body>
 </html>
