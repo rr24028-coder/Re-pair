@@ -90,20 +90,40 @@ document.body.insertAdjacentHTML('beforeend', `
         <div style="padding:24px 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);">
             <h2 id="equipment-dialog-title" style="font-size:22px;margin:0;">Registrar computador</h2>
         </div>
-        <form id="equipment-form" style="padding:28px;">
+        <form id="equipment-form" novalidate style="padding:28px;">
             <input type="hidden" id="equipment-id">
             <div style="display:grid;gap:17px;">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                    <div><label style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;">Tipo</label><select id="equipment-type" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;"><option>Laptop</option><option>Desktop</option></select></div>
-                    <div><label style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;">Alias</label><input id="equipment-alias" required style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;"></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
+                    <div>
+                        <label for="equipment-type" style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;">Tipo</label>
+                        <select id="equipment-type" aria-describedby="equipment-type-error" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;"><option>Laptop</option><option>Desktop</option></select>
+                        <p class="field-error" id="equipment-type-error" aria-live="polite" hidden style="margin-top:6px;font-size:12.5px;color:var(--peach-ink);"></p>
+                    </div>
+                    <div>
+                        <label for="equipment-alias" style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;">Alias</label>
+                        <input id="equipment-alias" required maxlength="40" autocomplete="off" placeholder="Ej.: Laptop de trabajo" aria-describedby="equipment-alias-error" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;">
+                        <p class="field-error" id="equipment-alias-error" aria-live="polite" hidden style="margin-top:6px;font-size:12.5px;color:var(--peach-ink);"></p>
+                    </div>
                 </div>
-                <div><label style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;">Marca y modelo</label><input id="equipment-model" required style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;"></div>
-                <div><label style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;">Número de serie</label><input id="equipment-serial" class="mono" required style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;"></div>
-                <div><label style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;">Especificaciones</label><input id="equipment-specs" required style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;"></div>
+                <div>
+                        <label for="equipment-model" style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;">Marca y modelo</label>
+                        <input id="equipment-model" required maxlength="60" autocomplete="off" placeholder="Ej.: Lenovo ThinkPad T14" aria-describedby="equipment-model-error" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;">
+                        <p class="field-error" id="equipment-model-error" aria-live="polite" hidden style="margin-top:6px;font-size:12.5px;color:var(--peach-ink);"></p>
+                    </div>
+                <div>
+                        <label for="equipment-serial" style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;">Número de serie</label>
+                        <input id="equipment-serial" class="mono" required maxlength="30" autocomplete="off" placeholder="Ej.: C02G123456" aria-describedby="equipment-serial-error" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;">
+                        <p class="field-error" id="equipment-serial-error" aria-live="polite" hidden style="margin-top:6px;font-size:12.5px;color:var(--peach-ink);"></p>
+                    </div>
+                <div>
+                        <label for="equipment-specs" style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;">Especificaciones</label>
+                        <input id="equipment-specs" required maxlength="120" autocomplete="off" placeholder="Ej.: Ryzen 7 · 32 GB RAM · SSD 1 TB" aria-describedby="equipment-specs-error" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;">
+                        <p class="field-error" id="equipment-specs-error" aria-live="polite" hidden style="margin-top:6px;font-size:12.5px;color:var(--peach-ink);"></p>
+                    </div>
             </div>
             <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:24px;">
                 <button type="button" class="btn outline" data-close="equipment-dialog" style="background-color:#ddd;color:#333;">Cancelar</button>
-                <button class="btn primary">Guardar equipo</button>
+                <button class="btn primary" id="equipment-save">Guardar equipo</button>
             </div>
         </form>
     </dialog>
@@ -207,9 +227,70 @@ function renderServices() {
     }
 }
 
+// ---------- Validación del formulario de equipos ----------
+const EQUIPMENT_TYPES = ['Laptop', 'Desktop'];
+const EQUIPMENT_FIELDS = {
+    alias:  { id: 'equipment-alias',  what: 'un alias',             min: 2, max: 40 },
+    model:  { id: 'equipment-model',  what: 'la marca y el modelo', min: 2, max: 60 },
+    serial: { id: 'equipment-serial', what: 'el número de serie',   min: 4, max: 30,
+              pattern: /^[A-Za-z0-9][A-Za-z0-9\-_./]*$/,
+              patternMsg: 'Usa solo letras, números y los símbolos - _ . / (sin espacios).' },
+    specs:  { id: 'equipment-specs',  what: 'las especificaciones', min: 3, max: 120 }
+};
+const EQUIPMENT_FIELD_IDS = ['equipment-type', ...Object.values(EQUIPMENT_FIELDS).map(r => r.id)];
+
+// Muestra (o quita, con mensaje vacío) el aviso de error de un campo.
+function showFieldError(inputId, message) {
+    const input = document.getElementById(inputId);
+    const err = document.getElementById(inputId + '-error');
+    if (!input || !err) return;
+    err.textContent = message || '';
+    err.hidden = !message;
+    if (message) {
+        input.setAttribute('aria-invalid', 'true');
+        input.style.borderColor = 'var(--peach-ink)';
+    } else {
+        input.removeAttribute('aria-invalid');
+        input.style.borderColor = 'var(--border)';
+    }
+}
+
+function readEquipmentForm() {
+    const clean = v => v.replace(/\s+/g, ' ').trim();
+    return {
+        type: $('#equipment-type').value,
+        alias: clean($('#equipment-alias').value),
+        model: clean($('#equipment-model').value),
+        serial: $('#equipment-serial').value.trim(),
+        specs: clean($('#equipment-specs').value)
+    };
+}
+
+// Devuelve { idDelCampo: 'mensaje' } solo con los campos que fallan.
+function validateEquipment(data, id) {
+    const errors = {};
+    if (!EQUIPMENT_TYPES.includes(data.type)) errors['equipment-type'] = 'Elige Laptop o Desktop.';
+
+    for (const [key, r] of Object.entries(EQUIPMENT_FIELDS)) {
+        const value = data[key];
+        if (!value) errors[r.id] = `Escribe ${r.what}.`;
+        else if (value.length < r.min) errors[r.id] = `Escribe al menos ${r.min} caracteres.`;
+        else if (value.length > r.max) errors[r.id] = `Usa ${r.max} caracteres como máximo.`;
+        else if (r.pattern && !r.pattern.test(value)) errors[r.id] = r.patternMsg;
+    }
+
+    // Serie repetida entre los equipos del usuario (sin distinguir mayúsculas)
+    if (!errors['equipment-serial'] &&
+        equipment.some(e => String(e.serial ?? '').toLowerCase() === data.serial.toLowerCase() && e.id !== id)) {
+        errors['equipment-serial'] = 'Ya registraste un equipo con ese número de serie.';
+    }
+    return errors;
+}
+
 function openEquipment(id) {
     const e = equipment.find(eq => eq.id === id);
     $('#equipment-form').reset();
+    EQUIPMENT_FIELD_IDS.forEach(f => showFieldError(f, ''));
     $('#equipment-id').value = e?.id || '';
     $('#equipment-dialog-title').textContent = e ? 'Editar computador' : 'Registrar computador';
     if (e) {
@@ -239,35 +320,45 @@ document.addEventListener('click', ev => {
     }
 });
 
+// Al escribir o cambiar un campo se quita su aviso de error.
+['input', 'change'].forEach(evt => {
+    $('#equipment-form').addEventListener(evt, ev => {
+        if (EQUIPMENT_FIELD_IDS.includes(ev.target.id)) showFieldError(ev.target.id, '');
+    });
+});
+
 $('#equipment-form').addEventListener('submit', async ev => {
     ev.preventDefault();
     const id = $('#equipment-id').value;
-    const serial = $('#equipment-serial').value.trim();
-    
-    if (equipment.some(e => e.serial.toLowerCase() === serial.toLowerCase() && e.id !== id)) {
-        toast('Ese número de serie ya está registrado.');
+    const data = readEquipmentForm();
+
+    const errors = validateEquipment(data, id);
+    EQUIPMENT_FIELD_IDS.forEach(f => showFieldError(f, errors[f]));
+    const firstInvalid = EQUIPMENT_FIELD_IDS.find(f => errors[f]);
+    if (firstInvalid) {
+        document.getElementById(firstInvalid).focus();
+        return;
+    }
+    if (!currentUser) {
+        toast('Tu sesión no está activa. Vuelve a ingresar.');
         return;
     }
 
-    const data = {
-        uid: currentUser.uid, // <-- ESTO ES CLAVE, asocia el equipo al usuario logueado
-        type: $('#equipment-type').value,
-        alias: $('#equipment-alias').value.trim(),
-        model: $('#equipment-model').value.trim(),
-        serial: serial,
-        specs: $('#equipment-specs').value.trim()
-    };
+    const payload = { uid: currentUser.uid, ...data }; // uid asocia el equipo al usuario logueado
 
+    // Se desactiva el botón mientras guarda para no crear el equipo dos veces.
+    const saveBtn = $('#equipment-save');
+    saveBtn.disabled = true;
     try {
         if (id) {
             const equipoRef = window.doc(window.db, "equipos", id);
-            await window.updateDoc(equipoRef, data);
+            await window.updateDoc(equipoRef, payload);
             toast('Equipo actualizado en la nube.');
         } else {
-            data.status = 'Registrado';
-            data.specialist = 'Sin asignar';
-            data.service = 'Sin historial';
-            await window.addDoc(window.collection(window.db, "equipos"), data);
+            payload.status = 'Registrado';
+            payload.specialist = 'Sin asignar';
+            payload.service = 'Sin historial';
+            await window.addDoc(window.collection(window.db, "equipos"), payload);
             toast('Equipo registrado con éxito en la nube.');
         }
         $('#equipment-dialog').close();
@@ -275,6 +366,8 @@ $('#equipment-form').addEventListener('submit', async ev => {
     } catch (error) {
         console.error("Error al guardar:", error);
         toast('Error al conectar con la base de datos.');
+    } finally {
+        saveBtn.disabled = false;
     }
 });
 
@@ -330,12 +423,28 @@ if (flashMsg) {
     setTimeout(() => toast(flashMsg), 300);
 }
 
+// ---------- Solo correos institucionales ----------
+const MENSAJE_DOMINIO = 'Usa tu correo institucional, que termina en @ues.edu.sv.';
+const esCorreoPermitido = email => /^[^\s@]+@ues\.edu\.sv$/i.test(String(email ?? '').trim());
+
+// Marca el campo como inválido mientras el correo no sea @ues.edu.sv;
+// el navegador muestra el mensaje al enviar el formulario.
+function exigirCorreoInstitucional(input) {
+    if (!input) return;
+    const revisar = () => input.setCustomValidity(!input.value || esCorreoPermitido(input.value) ? '' : MENSAJE_DOMINIO);
+    input.addEventListener('input', revisar);
+    revisar();
+}
+exigirCorreoInstitucional(document.getElementById('login-email'));
+exigirCorreoInstitucional(document.getElementById('register-email'));
+
 // Formularios de Autenticación Reales
 const loginForm = $('#login-form');
 if (loginForm.addEventListener) {
     loginForm.addEventListener('submit', async ev => {
         ev.preventDefault();
-        const email = $('#login-email').value;
+        const email = $('#login-email').value.trim().toLowerCase();
+        if (!esCorreoPermitido(email)) { toast(MENSAJE_DOMINIO); return; }
         const password = $('#login-password').value;
         try {
             await window.signInWithEmailAndPassword(window.auth, email, password);
@@ -355,7 +464,8 @@ const registerForm = $('#register-form');
 if (registerForm.addEventListener) {
     registerForm.addEventListener('submit', async ev => {
         ev.preventDefault();
-        const email = $('#register-email').value;
+        const email = $('#register-email').value.trim().toLowerCase();
+        if (!esCorreoPermitido(email)) { toast(MENSAJE_DOMINIO); return; }
         const password = $('#register-password').value;
 
         // El observador de sesión se salta la redirección mientras se guarda el rol.
@@ -389,6 +499,14 @@ const CLIENT_BLOCKED_PAGES = ['orders', 'diagnostic', 'finance'];
 
 window.onAuthStateChanged(window.auth, async (user) => {
     if (loggingOut) return; // el cierre de sesión redirige por su cuenta a index.html
+
+    // Solo se admiten correos @ues.edu.sv: cualquier otra sesión se cierra y vuelve al login.
+    if (user && !esCorreoPermitido(user.email)) {
+        loggingOut = true;
+        sessionStorage.setItem('repear-flash', MENSAJE_DOMINIO);
+        window.signOut(window.auth).finally(() => irA('login'));
+        return;
+    }
     const page = document.body.dataset.page;
     const isAuthPage = page === 'login' || page === 'register';
     const isPrivatePage = PRIVATE_PAGES.includes(page);
