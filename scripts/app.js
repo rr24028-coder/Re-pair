@@ -248,10 +248,8 @@ document.addEventListener('click', ev => {
     if (target.dataset.edit) openEquipment(target.dataset.edit);
     if (target.id === 'print-invoice') window.print();
     if (target.id === 'logout-btn' || target.closest('#logout-btn')) {
-        window.signOut(window.auth).then(() => {
-            sessionStorage.setItem('repear-flash', 'Has cerrado sesión correctamente.');
-            irA('index');
-        });
+        loggingOut = true; // evita que el observador de sesión mande al login
+        window.signOut(window.auth).then(() => irA('index'));
     }
 });
 
@@ -370,6 +368,7 @@ if (loginForm.addEventListener) {
 // Las cuentas de técnico se crean directamente en Firebase:
 // colección "usuarios", documento con el uid, campo rol: "tecnico".
 let registering = false;
+let loggingOut = false;
 const registerForm = $('#register-form');
 if (registerForm.addEventListener) {
     registerForm.addEventListener('submit', async ev => {
@@ -407,6 +406,7 @@ const PRIVATE_PAGES = ['home', 'equipment', 'orders', 'diagnostic', 'finance'];
 const CLIENT_BLOCKED_PAGES = ['orders', 'diagnostic', 'finance'];
 
 window.onAuthStateChanged(window.auth, async (user) => {
+    if (loggingOut) return; // el cierre de sesión redirige por su cuenta a index.html
     const page = document.body.dataset.page;
     const isAuthPage = page === 'login' || page === 'register';
     const isPrivatePage = PRIVATE_PAGES.includes(page);
