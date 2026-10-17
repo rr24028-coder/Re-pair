@@ -296,19 +296,51 @@ $('#equipment-form').addEventListener('submit', async ev => {
 
 if ($('#tabs').classList) {
     const TABS = [
-        {t:'Un especialista revisa cada componente', p:'Pruebas de estrés, temperatura y estabilidad. Cada observación queda en un reporte que podés leer cuando quieras.', a:'diagnostico.html'},
-        {t:'Limpieza interna y pasta térmica nueva', p:'Retiramos el polvo de ventiladores y disipador, y renovamos la pasta térmica para que el equipo vuelva a rendir.', a:'finanzas.html'},
-        {t:'Cada dólar, con su detalle', p:'El precio sale del costo del servicio más un recargo. Sin cargos escondidos.', a:'finanzas.html'},
-        {t:'Sabé en qué paso va tu equipo', p:'Consultá el estado de cada orden y quién la atiende. Al terminar, el reporte y la factura te esperan en el mismo lugar.', a:'ordenes.html'}
+        {
+            t: 'Un especialista revisa cada componente', 
+            p: 'Pruebas de estrés, temperatura y estabilidad. Cada observación queda en un reporte que podés leer cuando quieras.', 
+            a: 'diagnostico.html',
+            ic: 'cpu',
+            v: `<div class="tp-row"><span>Temp. CPU (Estrés)</span><b class="mono" style="color: #e63946;">95 °C</b></div>
+                <div class="tp-row"><span>Pasta térmica</span><b class="mono">Degradada</b></div>`
+        },
+        {
+            t: 'Limpieza interna y pasta térmica nueva', 
+            p: 'Retiramos el polvo de ventiladores y disipador, y renovamos la pasta térmica para que el equipo vuelva a rendir.', 
+            a: 'ordenes.html',
+            ic: 'wrench',
+            v: `<div class="tp-row"><span>Limpieza ventiladores</span><b class="mono" style="color: var(--lime);">Completado</b></div>
+                <div class="tp-row"><span>Temp. post-mantenimiento</span><b class="mono" style="color: var(--lime);">58 °C</b></div>`
+        },
+        {
+            t: 'Cada dólar, con su detalle', 
+            p: 'El precio sale del costo del servicio más un recargo. Sin cargos escondidos.', 
+            a: 'ordenes.html',
+            ic: 'dollar-sign',
+            v: `<div class="tp-row"><span>Limpieza profunda</span><b class="mono">$35.00</b></div>
+                <div class="tp-row"><span>Diagnóstico</span><b class="mono">$20.00</b></div>
+                <div class="tp-row" style="border-top: 1px dashed var(--border); margin-top: 5px; padding-top: 5px;"><span>Total</span><b class="mono">$55.00</b></div>`
+        },
+        {
+            t: 'Sabé en qué paso va tu equipo', 
+            p: 'Consultá el estado de cada orden y quién la atiende. Al terminar, el reporte y la factura te esperan en el mismo lugar.', 
+            a: 'ordenes.html',
+            ic: 'laptop',
+            v: `<div class="tp-row"><span>Orden #ORD-2026-104</span><b class="mono">Ryzen 7</b></div>
+                <div class="tp-row"><span>Estado actual</span><span class="badge ready" style="font-size: 11px; padding: 2px 6px;"><span class="dot"></span>Listo</span></div>`
+        }
     ];
-    $('#tabs').addEventListener('click', e => {         const btns = $$('.tab');
+
+    $('#tabs').addEventListener('click', e => { const btns = $$('.tab');
         const target = e.target.closest('.tab');
         if (!target) return;
         const i = btns.indexOf(target);
         btns.forEach((b, j) => b.setAttribute('aria-selected', String(j === i)));
         const p = $('#tab-panel');
         p.className = 'tp t' + i;
-        p.innerHTML = `<div class="tp-copy"><h3>${TABS[i].t}</h3><p>${TABS[i].p}</p><a class="btn primary" href="${TABS[i].a}">Explorar<svg class="icon"><use href="#arrow"/></svg></a></div><div class="tp-visual"><div class="tp-card"><div class="tp-ic">${icon('wrench')}</div><div class="tp-row"><span>Estado actual</span><b class="mono">Simulado</b></div></div></div>`;
+        
+        // Inyectamos la tarjeta específica de cada tab
+        p.innerHTML = `<div class="tp-copy"><h3>${TABS[i].t}</h3><p>${TABS[i].p}</p><a class="btn primary" href="${TABS[i].a}">Explorar<svg class="icon"><use href="#arrow"/></svg></a></div><div class="tp-visual"><div class="tp-card"><div class="tp-ic">${icon(TABS[i].ic)}</div>${TABS[i].v}</div></div>`;
     });
 }
 
@@ -407,6 +439,7 @@ window.onAuthStateChanged(window.auth, async (user) => {
 
         if (rol === 'tecnico') {
             hideLink('nav-equipos');
+            hideLink('btn-registrar-header'); // Ocultar el botón Registrar para técnicos
             if (page === 'equipment') {
                 irA('diagnostico');
                 return;
