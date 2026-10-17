@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /vistas/privadas/
+Disallow: /scripts/
+
+Sitemap: https://rr24028-coder.github.io/Re-pair/sitemap.xml
