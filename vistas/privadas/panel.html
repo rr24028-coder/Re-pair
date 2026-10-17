@@ -68,8 +68,8 @@
     <div class="shell">
         <header class="topbar">
             <a href="panel.html" class="brand" aria-label="Re-pear, Inicio">
-                <svg aria-hidden="true"><use href="#pear-fruit"/></svg>
-                <span>Re<em>-</em>pear</span>
+            <svg aria-hidden="true"><use href="#pear-fruit"/></svg>
+            <span>Re<em>-</em>pear</span>
             </a>
             <nav class="mainnav" id="sidebar" aria-label="Navegación principal">
                 <a class="nav-link active" href="panel.html" aria-current="page">Inicio</a>
@@ -78,13 +78,13 @@
                 <a class="nav-link" id="nav-diagnostico" href="diagnostico.html">Diagnóstico</a>
                 <a class="nav-link" id="nav-finanzas" href="finanzas.html">Finanzas</a>
             </nav>
-            <div class="top-actions">
-                <button class="btn primary small" data-action="new-equipment">Registrar equipo</button>
-            </div>
+    
+            <!-- Botones agrupados con margin-left auto para anclarlos a la derecha -->
             <div style="margin-left: auto; display: flex; gap: 15px; align-items: center;">
-    <a href="../publicas/ingresar.html" id="login-btn" class="btn outline small" style="display: none;">Ingresar</a>
-    <button id="logout-btn" class="btn small" style="background-color: var(--peach-ink); color: white; display: none;">Cerrar sesión</button>
-</div>
+                <button id="btn-registrar-header" class="btn primary small" data-action="new-equipment">Registrar equipo</button>
+                <a href="../publicas/ingresar.html" id="login-btn" class="btn outline small" style="display: none;">Ingresar</a>
+                <button id="logout-btn" class="btn small" style="background-color: var(--peach-ink); color: white; display: none;">Cerrar sesión</button>
+            </div>
         </header>
 
         <main class="main">
@@ -166,9 +166,9 @@
                         </div>
                         <div class="tp-visual">
                             <div class="tp-card">
-                                <div class="tp-ic"><svg class="icon"><use href="#wrench"/></svg></div>
-                                <div class="tp-row"><span>Temperatura máxima</span><b class="mono">95 °C</b></div>
-                                <div class="tp-row"><span>Pasta térmica</span><b class="mono">Degradada</b></div>
+                            <div class="tp-ic"><svg class="icon"><use href="#cpu"/></svg></div>
+                            <div class="tp-row"><span>Temp. CPU (Estrés)</span><b class="mono" style="color: #e63946;">95 °C</b></div>
+                            <div class="tp-row"><span>Pasta térmica</span><b class="mono">Degradada</b></div>
                             </div>
                         </div>
                     </div>
@@ -184,18 +184,6 @@
                     <div class="equipment-grid" id="home-equipment">
                         <!-- Contenido inyectado por JS -->
                     </div>
-                </section>
-
-                <section class="band">
-                    <div class="wrap band-grid">
-                        <div class="band-copy">
-                            <h2>Catálogo de servicios.</h2>
-                            <p>Explora todo lo que podemos hacer por tu equipo para devolverle su máximo rendimiento, mejorar su temperatura y extender su vida útil.</p>
-                        </div>
-                        <div class="panel services-panel" id="home-services">
-                        <!-- El catálogo se inyectará aquí desde JavaScript -->
-                        </div>
-                     </div>
                 </section>
 
                 <section class="wrap lp-section">
