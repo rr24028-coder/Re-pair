@@ -5,11 +5,13 @@
 // Con esto las redirecciones funcionan igual desde /vistas/publicas y /vistas/privadas.
 const ROOT = new URL('../', import.meta.url);
 const RUTAS = {
+    index: 'index.html',
     login: 'vistas/publicas/ingresar.html',
     panel: 'vistas/privadas/panel.html',
     equipos: 'vistas/privadas/equipos.html',
     diagnostico: 'vistas/privadas/diagnostico.html'
 };
+
 const irA = ruta => { location.href = new URL(RUTAS[ruta], ROOT).href; };
 
 const ICONS = {
@@ -189,14 +191,17 @@ function servicePrice(s) { return round(s.cost * (1 + s.markup / 100)); }
 
 function renderServices() {
     if ($('#home-services').classList) {
-        $('#home-services').innerHTML = services.slice(0, 3).map(s => 
-            `<div style="display:flex;gap:16px;padding:28px 0;border-bottom:1px solid #ffffff1f;color:#F0FAE6;">
-                <div style="width:46px;height:46px;border-radius:15px;background:#ffffff14;color:var(--lime);display:grid;place-items:center;">${icon(s.icon || 'wrench')}</div>
-                <div><h3 style="font-size:21px;font-family:var(--head);">${esc(s.name)}</h3><p style="font-size:14px;color:#F0FAE6a8;margin-top:4px;">${esc(s.description)}</p></div>
-                <div style="margin-left:auto;text-align:right;">
-                    <span style="font-family:var(--head);font-weight:700;font-size:32px;color:#fff;">${money(servicePrice(s))}</span>                </div>
+        $('#home-services').innerHTML = services.map(s => 
+            `<div style="display:flex;gap:16px;padding:24px 0;border-bottom:1px solid #ffffff1f;color:#F0FAE6;">
+                <div style="width:46px;height:46px;border-radius:15px;background:#ffffff14;color:var(--lime);display:grid;place-items:center;flex-shrink:0;">
+                    ${icon(s.icon || 'wrench')}
+                </div>
+                <div>
+                    <h3 style="font-size:21px;font-family:var(--head);">${esc(s.name)}</h3>
+                    <p style="font-size:14px;color:#F0FAE6a8;margin-top:6px;line-height:1.5;">${esc(s.description)}</p>
+                </div>
             </div>`
-        ).join('');
+        ).join('') || '<div style="padding:40px;text-align:center;color:#F0FAE6a8;">Aún no hay servicios en el catálogo.</div>';
     }
 
     // Tabla del catálogo (finanzas.html)
@@ -245,7 +250,7 @@ document.addEventListener('click', ev => {
     if (target.id === 'logout-btn' || target.closest('#logout-btn')) {
         window.signOut(window.auth).then(() => {
             sessionStorage.setItem('repear-flash', 'Has cerrado sesión correctamente.');
-            irA('login');
+            irA('index');
         });
     }
 });
