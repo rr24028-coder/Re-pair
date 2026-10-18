@@ -363,29 +363,8 @@ $('#equipment-form').addEventListener('submit', async ev => {
             payload.status = 'Registrado';
             payload.specialist = TECNICO_PREDETERMINADO;
             payload.service = 'Sin historial';
-            const equipoRef = await window.addDoc(window.collection(window.db, "equipos"), payload);
-            // Cada equipo registrado genera una orden asignada al técnico.
-            try {
-                await window.addDoc(window.collection(window.db, "ordenes"), {
-                    numero: siguienteNumeroOrden(),
-                    clienteEmail: String(currentUser.email || '').toLowerCase(),
-                    clienteUid: currentUser.uid,
-                    equipoId: equipoRef.id,
-                    equipo: `${data.model} (${data.alias})`,
-                    status: 'Registrado',
-                    especialista: TECNICO_PREDETERMINADO,
-                    diagnostico: '',
-                    pruebas: '',
-                    items: [],
-                    total: 0,
-                    finalizada: false,
-                    creada: Date.now()
-                });
-                toast('Equipo registrado. Se envió la orden al técnico.');
-            } catch (errorOrden) {
-                console.error("Equipo guardado, pero no se pudo crear la orden:", errorOrden);
-                toast('Equipo registrado, pero no se pudo crear la orden para el técnico.');
-            }
+            await window.addDoc(window.collection(window.db, "equipos"), payload);
+            toast('Equipo registrado con éxito en la nube.');
         }
         $('#equipment-dialog').close();
         // onSnapshot actualiza la lista solo; no hace falta volver a pedir los datos.
@@ -562,7 +541,7 @@ function renderOrdenes() {
         return `<tr>
             <td class="mono">#${esc(o.numero)}</td>
             <td>${esc(o.clienteEmail)}</td>
-            <td>${esc(o.equipo)}</td>
+            <td>${esc(o.equipo)}${o.problema ? `<small style="display:block;color:var(--muted);max-width:260px;">${esc(String(o.problema).slice(0, 90))}${String(o.problema).length > 90 ? '…' : ''}</small>` : ''}</td>
             <td>${esc(principal)}</td>
             <td>${estadoOrden(o)}</td>
             <td><a class="btn small" style="background-color:#f0f0f0;color:#000;" href="diagnostico.html?orden=${encodeURIComponent(o.id)}">Reporte y factura</a></td>
@@ -598,7 +577,7 @@ function renderOrdenesCliente() {
         const listo = o.finalizada;
         return `<tr>
             <td class="mono">#${esc(o.numero)}</td>
-            <td>${esc(o.equipo)}</td>
+            <td>${esc(o.equipo)}${o.problema ? `<small style="display:block;color:var(--muted);max-width:260px;">${esc(String(o.problema).slice(0, 90))}${String(o.problema).length > 90 ? '…' : ''}</small>` : ''}</td>
             <td>${esc(o.especialista || 'Sin asignar')}</td>
             <td>${estadoOrden(o)}</td>
             <td class="mono">${listo ? money(totalItems(items)) : '—'}</td>
@@ -628,6 +607,7 @@ document.addEventListener('click', ev => {
     $('#client-report-title').textContent = `Orden #${o.numero}`;
     $('#client-report-body').innerHTML = `
         <p style="margin:0;"><strong>Equipo:</strong> ${esc(o.equipo)} · <strong>Técnico:</strong> ${esc(o.especialista || '—')}</p>
+        ${o.problema ? `<div><h3 style="margin:0 0 6px;">Problema reportado</h3><p style="margin:0;white-space:pre-wrap;">${esc(o.problema)}</p></div>` : ''}
         <div>
             <h3 style="margin:0 0 6px;">Diagnóstico del técnico</h3>
             <p style="margin:0;white-space:pre-wrap;">${esc(o.diagnostico || 'Sin observaciones.')}</p>
@@ -640,6 +620,94 @@ document.addEventListener('click', ev => {
         </div>
         <p style="margin:0;font-size:12.5px;color:var(--muted);">Documento de ejemplo. No es un comprobante fiscal.</p>`;
     $('#client-report-dialog').showModal();
+});
+
+// --- Generar orden (cliente) ---
+document.body.insertAdjacentHTML('beforeend', `
+    <dialog id="client-order-dialog" style="border:1px solid var(--border);border-radius:28px;background:var(--surface);color:var(--ink);padding:0;width:min(520px, calc(100% - 28px));box-shadow:0 30px 90px #06241655;">
+        <div style="padding:24px 28px;border-bottom:1px solid var(--border);">
+            <h2 style="font-size:22px;margin:0;">Generar orden de servicio</h2>
+        </div>
+        <form id="client-order-form" novalidate style="padding:28px;">
+            <div style="display:grid;gap:17px;">
+                <div>
+                    <label for="client-order-equipo" style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;">Equipo</label>
+                    <select id="client-order-equipo" aria-describedby="client-order-equipo-error" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;"></select>
+                    <p class="field-error" id="client-order-equipo-error" aria-live="polite" hidden style="margin-top:6px;font-size:12.5px;color:var(--peach-ink);"></p>
+                </div>
+                <div>
+                    <label for="client-order-problema" style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;">Descripción del problema</label>
+                    <textarea id="client-order-problema" rows="5" maxlength="500" placeholder="Ej.: Se calienta mucho, el ventilador hace ruido y se apaga solo." aria-describedby="client-order-problema-error" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;resize:vertical;font:inherit;"></textarea>
+                    <p class="field-error" id="client-order-problema-error" aria-live="polite" hidden style="margin-top:6px;font-size:12.5px;color:var(--peach-ink);"></p>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:24px;">
+                <button type="button" class="btn outline" data-close="client-order-dialog" style="background-color:#ddd;color:#333;">Cancelar</button>
+                <button class="btn primary" id="client-order-save">Enviar orden</button>
+            </div>
+        </form>
+    </dialog>
+`);
+
+const CLIENT_ORDER_FIELDS = ['client-order-equipo', 'client-order-problema'];
+
+document.addEventListener('click', ev => {
+    if (!ev.target.closest('[data-action="new-client-order"]')) return;
+    if (!currentUser) { toast('Tu sesión no está activa. Vuelve a ingresar.'); return; }
+    if (!equipment.length) { toast('Primero registra un equipo para poder generar una orden.'); return; }
+    $('#client-order-form').reset();
+    CLIENT_ORDER_FIELDS.forEach(f => showFieldError(f, ''));
+    $('#client-order-equipo').innerHTML = equipment.map(e =>
+        `<option value="${esc(e.id)}">${esc(e.alias)} — ${esc(e.model)}</option>`).join('');
+    $('#client-order-dialog').showModal();
+});
+
+['input', 'change'].forEach(evt => {
+    $('#client-order-form').addEventListener(evt, ev => {
+        if (CLIENT_ORDER_FIELDS.includes(ev.target.id)) showFieldError(ev.target.id, '');
+    });
+});
+
+$('#client-order-form').addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const e = equipment.find(x => x.id === $('#client-order-equipo').value);
+    const problema = $('#client-order-problema').value.replace(/[ \t]+/g, ' ').trim();
+    const errors = {};
+    if (!e) errors['client-order-equipo'] = 'Elige uno de tus equipos.';
+    if (problema.length < 10) errors['client-order-problema'] = 'Describe el problema con al menos 10 caracteres.';
+    else if (problema.length > 500) errors['client-order-problema'] = 'Usa 500 caracteres como máximo.';
+    CLIENT_ORDER_FIELDS.forEach(f => showFieldError(f, errors[f]));
+    const primero = CLIENT_ORDER_FIELDS.find(f => errors[f]);
+    if (primero) { document.getElementById(primero).focus(); return; }
+    if (!currentUser) { toast('Tu sesión no está activa. Vuelve a ingresar.'); return; }
+
+    const guardar = $('#client-order-save');
+    guardar.disabled = true;
+    try {
+        await window.addDoc(window.collection(window.db, "ordenes"), {
+            numero: siguienteNumeroOrden(),
+            clienteEmail: String(currentUser.email || '').toLowerCase(),
+            clienteUid: currentUser.uid,
+            equipoId: e.id,
+            equipo: `${e.model} (${e.alias})`,
+            problema,
+            status: 'Registrado',
+            especialista: TECNICO_PREDETERMINADO, // asignación automática
+            diagnostico: '',
+            pruebas: '',
+            items: [],
+            total: 0,
+            finalizada: false,
+            creada: Date.now()
+        });
+        $('#client-order-dialog').close();
+        toast('Orden enviada al técnico.');
+    } catch (error) {
+        console.error("Error al generar la orden:", error);
+        toast('No se pudo generar la orden.');
+    } finally {
+        guardar.disabled = false;
+    }
 });
 
 // --- Nueva orden (ordenes.html) ---
@@ -730,6 +798,7 @@ function renderOrden() {
     $('#diag-equipo').textContent = o.equipo || '—';
     $('#diag-numero').textContent = `#${o.numero}`;
     $('#diag-especialista').textContent = o.especialista || 'Sin asignar';
+    $('#diag-problema').textContent = o.problema || 'El cliente no describió el problema.';
     const badgeEl = $('#diag-badge');
     badgeEl.className = 'badge' + (o.finalizada ? ' ready' : '');
     badgeEl.innerHTML = `<span class="dot"></span>${o.finalizada ? 'Listo para entrega' : 'Borrador'}`;
