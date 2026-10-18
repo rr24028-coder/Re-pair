@@ -9,6 +9,7 @@ const RUTAS = {
     login: 'vistas/publicas/ingresar.html',
     panel: 'vistas/privadas/panel.html',
     equipos: 'vistas/privadas/equipos.html',
+    ordenes: 'vistas/privadas/ordenes.html',
     diagnostico: 'vistas/privadas/diagnostico.html'
 };
 
@@ -195,10 +196,9 @@ function renderEquipment() {
                 <td><strong>${esc(e.alias)}</strong><small>${esc(e.model)} · <span class="mono">${esc(e.serial)}</span></small></td>
                 <td>${esc(e.type)}</td>
                 <td>${esc(e.specs)}</td>
-                <td>${esc(e.service)}<small>${esc(e.status)}</small></td>
                 <td><button class="btn ghost small">Ver</button> <button class="btn small" style="background-color:#f0f0f0;color:#000;" data-edit="${esc(e.id)}">Editar</button></td>
             </tr>`
-        ).join('') || '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted);">No se encontraron equipos.</td></tr>';
+        ).join('') || '<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--muted);">No se encontraron equipos.</td></tr>';
     }
 }
 
@@ -223,7 +223,8 @@ function renderServices() {
     }
 
     if ($('#invoice-service').options) {
-        $('#invoice-service').innerHTML = services.map(s => `<option value="${esc(s.id)}">${esc(s.name)} — ${money(servicePrice(s))}</option>`).join('');
+        $('#invoice-service').innerHTML = services.map(s => `<option value="${esc(s.id)}">${esc(s.name)} — ${money(servicePrice(s))}</option>`).join('')
+            || '<option value="">No hay servicios en el catálogo</option>';
     }
 }
 
@@ -394,13 +395,6 @@ if ($('#tabs').classList) {
             v: `<div class="tp-row"><span>Limpieza profunda</span><b class="mono">$35.00</b></div>
                 <div class="tp-row"><span>Diagnóstico</span><b class="mono">$20.00</b></div>
                 <div class="tp-row" style="border-top: 1px dashed var(--border); margin-top: 5px; padding-top: 5px;"><span>Total</span><b class="mono">$55.00</b></div>`
-        },
-        {
-            t: 'Sabé en qué paso va tu equipo', 
-            p: 'Consultá el estado de cada orden y quién la atiende. Al terminar, el reporte y la factura te esperan en el mismo lugar.', 
-            ic: 'laptop',
-            v: `<div class="tp-row"><span>Orden #ORD-2026-104</span><b class="mono">Ryzen 7</b></div>
-                <div class="tp-row"><span>Estado actual</span><span class="badge ready" style="font-size: 11px; padding: 2px 6px;"><span class="dot"></span>Listo</span></div>`
         }
     ];
 
@@ -493,8 +487,264 @@ if (registerForm.addEventListener) {
     });
 }
 
+// ---------- Órdenes de servicio ----------
+// Colección "ordenes". Cada documento:
+// { numero, clienteEmail, equipo, status, especialista, diagnostico, pruebas,
+//   items: [{ serviceId, name, cost, markup, price, qty }], total, finalizada, creada }
+// El precio de cada línea se guarda al añadirla: si luego cambia el catálogo, la factura no cambia.
+let ordenes = [];
+let unsubOrdenes = null;
+let ordenActual = null; // orden abierta en diagnostico.html
+const ordenIdURL = new URLSearchParams(location.search).get('orden');
+
+const totalItems = items => round(items.reduce((t, i) => t + i.price * i.qty, 0));
+
+function siguienteNumeroOrden() {
+    const prefijo = `ORD-${new Date().getFullYear()}-`;
+    const max = ordenes.reduce((m, o) => {
+        const n = String(o.numero || '');
+        return n.startsWith(prefijo) ? Math.max(m, parseInt(n.slice(prefijo.length), 10) || 0) : m;
+    }, 0);
+    return prefijo + String(max + 1).padStart(3, '0');
+}
+
+function estadoOrden(o) {
+    return `<span class="badge ${o.finalizada ? 'ready' : 'neutral'}"><span class="dot"></span>${esc(o.status || 'Registrado')}</span>`;
+}
+
+function fetchOrdenes() {
+    if (unsubOrdenes) unsubOrdenes();
+    unsubOrdenes = window.onSnapshot(window.collection(window.db, "ordenes"), snap => {
+        ordenes = [];
+        snap.forEach(d => ordenes.push({ id: d.id, ...d.data() }));
+        renderOrdenes();
+    }, error => {
+        console.error("Error al escuchar órdenes:", error);
+        const body = document.getElementById('orders-body');
+        if (body) body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">No se pudieron cargar las órdenes.</td></tr>';
+    });
+}
+
+function renderOrdenes() {
+    const body = document.getElementById('orders-body');
+    if (!body) return;
+    const lista = [...ordenes].sort((a, b) => (b.creada || 0) - (a.creada || 0));
+    body.innerHTML = lista.map(o => {
+        const items = Array.isArray(o.items) ? o.items : [];
+        const principal = items.length ? items[0].name + (items.length > 1 ? ` +${items.length - 1}` : '') : 'Sin servicios aún';
+        return `<tr>
+            <td class="mono">#${esc(o.numero)}</td>
+            <td>${esc(o.clienteEmail)}</td>
+            <td>${esc(o.equipo)}</td>
+            <td>${esc(principal)}</td>
+            <td>${estadoOrden(o)}</td>
+            <td><a class="btn small" style="background-color:#f0f0f0;color:#000;" href="diagnostico.html?orden=${encodeURIComponent(o.id)}">Reporte y factura</a></td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">Aún no hay órdenes. Usa «Nueva orden» para crear la primera.</td></tr>';
+}
+
+// --- Nueva orden (ordenes.html) ---
+const ORDER_FIELD_IDS = ['order-email', 'order-equipo'];
+document.addEventListener('click', ev => {
+    if (!ev.target.closest('[data-action="new-order"]')) return;
+    $('#order-form').reset();
+    ORDER_FIELD_IDS.forEach(f => showFieldError(f, ''));
+    $('#order-dialog').showModal();
+});
+['input', 'change'].forEach(evt => {
+    $('#order-form').addEventListener(evt, ev => {
+        if (ORDER_FIELD_IDS.includes(ev.target.id)) showFieldError(ev.target.id, '');
+    });
+});
+$('#order-form').addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const email = $('#order-email').value.trim().toLowerCase();
+    const equipo = $('#order-equipo').value.replace(/\s+/g, ' ').trim();
+    const errors = {};
+    if (!esCorreoPermitido(email)) errors['order-email'] = MENSAJE_DOMINIO;
+    if (equipo.length < 2) errors['order-equipo'] = 'Escribe la marca y el modelo del equipo.';
+    ORDER_FIELD_IDS.forEach(f => showFieldError(f, errors[f]));
+    const primero = ORDER_FIELD_IDS.find(f => errors[f]);
+    if (primero) { document.getElementById(primero).focus(); return; }
+    if (!currentUser) { toast('Tu sesión no está activa. Vuelve a ingresar.'); return; }
+
+    const guardar = $('#order-save');
+    guardar.disabled = true;
+    try {
+        await window.addDoc(window.collection(window.db, "ordenes"), {
+            numero: siguienteNumeroOrden(),
+            clienteEmail: email,
+            equipo,
+            status: 'Registrado',
+            especialista: currentUser.email,
+            diagnostico: '',
+            pruebas: '',
+            items: [],
+            total: 0,
+            finalizada: false,
+            creada: Date.now()
+        });
+        $('#order-dialog').close();
+        toast('Orden creada.'); // la lista se actualiza sola con onSnapshot
+    } catch (error) {
+        console.error("Error al crear la orden:", error);
+        toast('No se pudo crear la orden.');
+    } finally {
+        guardar.disabled = false;
+    }
+});
+
+// --- Diagnóstico y factura de una orden (diagnostico.html?orden=ID) ---
+async function cargarOrden() {
+    if (!ordenIdURL) { irA('ordenes'); return; }
+    try {
+        const snap = await window.getDoc(window.doc(window.db, "ordenes", ordenIdURL));
+        if (!snap.exists()) {
+            toast('No se encontró esa orden.');
+            setTimeout(() => irA('ordenes'), 1500);
+            return;
+        }
+        ordenActual = { id: snap.id, ...snap.data() };
+        ordenActual.items = Array.isArray(ordenActual.items) ? ordenActual.items : [];
+        $('#diagnosis').value = ordenActual.diagnostico || '';
+        $('#stress-test').value = ordenActual.pruebas || '';
+        renderOrden();
+    } catch (error) {
+        console.error("Error al cargar la orden:", error);
+        toast('No se pudo cargar la orden.');
+    }
+}
+
+function renderOrden() {
+    const o = ordenActual;
+    if (!o) return;
+    $('#diag-crumb').textContent = `Diagnóstico #${o.numero}`;
+    $('#diag-cliente').textContent = o.clienteEmail || '—';
+    $('#diag-equipo').textContent = o.equipo || '—';
+    $('#diag-numero').textContent = `#${o.numero}`;
+    $('#diag-especialista').textContent = o.especialista || 'Sin asignar';
+    const badgeEl = $('#diag-badge');
+    badgeEl.className = 'badge' + (o.finalizada ? ' ready' : '');
+    badgeEl.innerHTML = `<span class="dot"></span>${o.finalizada ? 'Listo para entrega' : 'Borrador'}`;
+
+    $('#diag-editor').hidden = !!o.finalizada;
+    $('#order-report').hidden = !o.finalizada;
+    renderItemsOrden();
+    if (o.finalizada) renderReporte();
+}
+
+function renderItemsOrden() {
+    const items = ordenActual.items;
+    $('#invoice-items').innerHTML = items.map((i, idx) =>
+        `<div class="invoice-item">
+            <div>
+                <strong>${esc(i.name)}</strong>
+                <small>Costo base: ${money(i.cost)} · Cantidad: ${esc(i.qty)}</small>
+            </div>
+            <span class="mono">${money(i.price * i.qty)}</span>
+            <button class="btn ghost icon-btn" type="button" data-remove-item="${idx}" aria-label="Quitar ${esc(i.name)}">${icon('close')}</button>
+        </div>`
+    ).join('') || '<p class="empty-items">Aún no hay servicios en la factura.</p>';
+    $('#invoice-total').textContent = money(totalItems(items));
+}
+
+function renderReporte() {
+    const o = ordenActual;
+    $('#report-numero').textContent = `#${o.numero}`;
+    $('#report-cliente').textContent = o.clienteEmail || '—';
+    $('#report-equipo').textContent = o.equipo || '—';
+    $('#report-diagnostico').textContent = o.diagnostico || 'Sin observaciones.';
+    $('#report-pruebas').textContent = o.pruebas || '';
+    $('#report-items').innerHTML = o.items.map(i =>
+        `<div class="invoice-item"><span>${esc(i.name)} × ${esc(i.qty)}</span><span class="mono">${money(i.price * i.qty)}</span></div>`
+    ).join('');
+    $('#report-total').textContent = money(totalItems(o.items));
+}
+
+// Guarda el texto del formulario y las líneas de factura (más lo que se pase en `extra`).
+async function guardarOrden(extra = {}, mensaje = '') {
+    if (!ordenActual) return false;
+    const finalizada = extra.finalizada ?? ordenActual.finalizada;
+    const datos = {
+        diagnostico: $('#diagnosis').value.trim(),
+        pruebas: $('#stress-test').value.trim(),
+        items: ordenActual.items,
+        total: totalItems(ordenActual.items),
+        status: finalizada ? 'Listo para entrega' : 'En diagnóstico',
+        finalizada,
+        ...extra
+    };
+    try {
+        await window.updateDoc(window.doc(window.db, "ordenes", ordenActual.id), datos);
+        Object.assign(ordenActual, datos);
+        if (mensaje) toast(mensaje);
+        return true;
+    } catch (error) {
+        console.error("Error al guardar la orden:", error);
+        toast('No se pudo guardar la orden.');
+        return false;
+    }
+}
+
+async function añadirItem() {
+    if (!ordenActual) return;
+    const servicio = services.find(s => s.id === $('#invoice-service').value);
+    if (!servicio) { toast('Elige un servicio del catálogo.'); return; }
+    const existente = ordenActual.items.find(i => i.serviceId === servicio.id);
+    if (existente) existente.qty += 1;
+    else ordenActual.items.push({
+        serviceId: servicio.id,
+        name: servicio.name,
+        cost: servicio.cost,
+        markup: servicio.markup,
+        price: servicePrice(servicio),
+        qty: 1
+    });
+    renderItemsOrden();
+    await guardarOrden();
+}
+
+async function quitarItem(idx) {
+    if (!ordenActual || !ordenActual.items[idx]) return;
+    ordenActual.items.splice(idx, 1);
+    renderItemsOrden();
+    await guardarOrden();
+}
+
+async function finalizarOrden() {
+    if (!ordenActual) return;
+    if (!ordenActual.items.length) {
+        toast('Añade al menos un servicio antes de generar la factura.');
+        return;
+    }
+    if (await guardarOrden({ finalizada: true, finalizadaEn: Date.now() }, 'Factura generada. La orden quedó lista para entrega.')) {
+        renderOrden();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+async function reabrirOrden() {
+    if (!ordenActual) return;
+    if (await guardarOrden({ finalizada: false }, 'Orden reabierta para editar.')) {
+        $('#diagnosis').value = ordenActual.diagnostico || '';
+        $('#stress-test').value = ordenActual.pruebas || '';
+        renderOrden();
+    }
+}
+
+document.addEventListener('click', ev => {
+    const quitar = ev.target.closest('[data-remove-item]');
+    if (quitar) { quitarItem(Number(quitar.dataset.removeItem)); return; }
+    const boton = ev.target.closest('button');
+    if (!boton) return;
+    if (boton.id === 'add-item') añadirItem();
+    else if (boton.id === 'save-draft') guardarOrden({}, 'Borrador guardado.').then(ok => ok && renderOrden());
+    else if (boton.id === 'finalize-order') finalizarOrden();
+    else if (boton.id === 'reopen-order') reabrirOrden();
+});
+
 // Observador Global de Sesión con control de vistas por rol
-const PRIVATE_PAGES = ['home', 'equipment', 'orders', 'diagnostic', 'finance'];
+const PRIVATE_PAGES = ['home', 'equipment', 'orders', 'catalog', 'diagnostic', 'finance'];
 const CLIENT_BLOCKED_PAGES = ['orders', 'diagnostic', 'finance'];
 
 window.onAuthStateChanged(window.auth, async (user) => {
@@ -522,7 +772,15 @@ window.onAuthStateChanged(window.auth, async (user) => {
 
         if (registering) return; // el registro guarda el rol y redirige por su cuenta
         if (isAuthPage) {
-            irA('panel');
+            // Al ingresar, el técnico va directo a Órdenes; el cliente, al panel.
+            let rolLogin = 'cliente';
+            try {
+                const docLogin = await window.getDoc(window.doc(window.db, "usuarios", user.uid));
+                if (docLogin.exists()) rolLogin = docLogin.data().rol;
+            } catch (error) {
+                console.error("Error al obtener el rol:", error);
+            }
+            irA(rolLogin === 'tecnico' ? 'ordenes' : 'panel');
             return;
         }
         if (!isPrivatePage) return;
@@ -540,8 +798,9 @@ window.onAuthStateChanged(window.auth, async (user) => {
         if (rol === 'tecnico') {
             hideLink('nav-equipos');
             hideLink('btn-registrar-header'); // Ocultar el botón Registrar para técnicos
-            if (page === 'equipment') {
-                irA('diagnostico');
+            hideLink('btn-registrar-catalogo');
+            if (page === 'equipment' || page === 'home') {
+                irA('ordenes');
                 return;
             }
         } else if (rol) {
@@ -556,6 +815,8 @@ window.onAuthStateChanged(window.auth, async (user) => {
 
         fetchEquipos(user.uid);
         fetchServicios();
+        if (page === 'orders') fetchOrdenes();
+        if (page === 'diagnostic') cargarOrden();
     } else {
         currentUser = null;
         if (logoutBtn) logoutBtn.style.display = 'none';
