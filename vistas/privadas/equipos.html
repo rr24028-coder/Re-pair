@@ -86,9 +86,12 @@
                         <h1>Mi catálogo de equipos</h1>
                         <p>Especificaciones, historial y seguimiento de tus computadores.</p>
                     </div>
-                    <button class="btn primary" data-action="new-equipment">
-                        <svg class="icon"><use href="#plus"/></svg>Agregar nuevo equipo
-                    </button>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <button class="btn" data-action="new-client-order">Generar orden</button>
+                        <button class="btn primary" data-action="new-equipment">
+                            <svg class="icon"><use href="#plus"/></svg>Agregar nuevo equipo
+                        </button>
+                    </div>
                 </div>
 
                 <div class="toolbar">
@@ -146,6 +149,7 @@
                         <h2 style="font-family:var(--head);font-size:28px;margin:0 0 6px;">Mis órdenes de servicio</h2>
                         <p>Estado de cada equipo que enviaste a revisión. Cuando el técnico termine, aquí verás el reporte y la factura.</p>
                     </div>
+                    <button class="btn primary" data-action="new-client-order">Generar orden</button>
                 </div>
 
                 <div class="panel table-wrap">
