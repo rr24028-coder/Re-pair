@@ -799,6 +799,9 @@ window.onAuthStateChanged(window.auth, async (user) => {
             hideLink('nav-equipos');
             hideLink('btn-registrar-header'); // Ocultar el botón Registrar para técnicos
             hideLink('btn-registrar-catalogo');
+            hideLink('nav-inicio'); // el técnico siempre empieza en Órdenes
+            // El logo y la migaja "Inicio" también lo llevan a Órdenes.
+            document.querySelectorAll('.brand, #breadcrumbs a[href="panel.html"]').forEach(el => { el.href = 'ordenes.html'; });
             if (page === 'equipment' || page === 'home') {
                 irA('ordenes');
                 return;
