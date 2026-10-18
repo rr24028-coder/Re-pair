@@ -38,7 +38,7 @@
                 <span>Re<em>-</em>pear</span>
             </a>
             <nav class="mainnav" id="sidebar">
-                <a class="nav-link" href="panel.html">Inicio</a>
+                <a class="nav-link" id="nav-inicio" href="panel.html">Inicio</a>
                 <a class="nav-link" id="nav-equipos" href="equipos.html">Mis equipos</a>
                 <a class="nav-link" id="nav-ordenes" href="ordenes.html">Órdenes</a>
                 <a class="nav-link active" id="nav-finanzas" href="finanzas.html" aria-current="page">Finanzas</a>
@@ -68,6 +68,17 @@
                     <button class="btn primary" id="new-service"><svg class="icon"><use href="#plus"/></svg>Nuevo servicio</button>
                 </div>
 
+                <div class="stats">
+                    <div class="stat panel">
+                        <div class="stat-top">Total facturado del mes<svg class="icon"><use href="#dollar-sign"/></svg></div>
+                        <strong class="mono" style="font-size:26px">$1,450.00</strong>
+                    </div>
+                    <div class="stat panel">
+                        <div class="stat-top">Margen bruto general<svg class="icon"><use href="#bar-chart-3"/></svg></div>
+                        <strong class="mono" style="font-size:26px">48.5%</strong>
+                    </div>
+                </div>
+
                 <div class="section-head" style="margin-top: 30px;">
                     <h2>Servicios y precios</h2>
                 </div>
@@ -87,6 +98,8 @@
                         </tbody>
                     </table>
                 </div>
+
+                <div class="notice">La columna de porcentaje sigue la fórmula de la guía: precio = costo × (1 + recargo / 100).</div>
             </section>
         </main>
     </div>
