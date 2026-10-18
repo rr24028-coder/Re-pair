@@ -42,6 +42,10 @@ const writeStore = (key, data) => { try { localStorage.setItem(key, JSON.stringi
 let equipment = [];
 let currentUser = null;
 
+// Técnico al que se le asignan automáticamente todos los equipos y órdenes.
+// Para cambiarlo, basta con editar este correo (debe ser una cuenta con rol "tecnico").
+const TECNICO_PREDETERMINADO = 'prueba01@ues.edu.sv';
+
 // Escuchas en tiempo real (onSnapshot). Se guarda la función para cancelar
 // la escucha anterior si se vuelve a llamar, así nunca hay dos activas.
 let unsubEquipos = null;
@@ -181,7 +185,7 @@ function renderEquipment() {
                 <div style="margin:18px 24px 0;font-size:12.5px;color:var(--muted);">
                     <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span>Especialista</span><span style="color:var(--ink);">${esc(e.specialist)}</span></div>
                 </div>
-                <button class="btn" style="margin:22px 24px 24px;border:none;background:var(--hover);color:var(--accent);width:calc(100% - 48px);">${e.status === 'Listo para entrega' ? 'Ver reporte' : 'Ver ficha'}</button>
+                <a class="btn" href="equipos.html#mis-ordenes" style="margin:22px 24px 24px;border:none;background:var(--hover);color:var(--accent);width:calc(100% - 48px);text-align:center;">Ver mis órdenes</a>
             </article>`
         ).join('') || '<div style="padding:40px;text-align:center;color:var(--muted);">Aún no hay equipos registrados.</div>';
     }
@@ -357,10 +361,31 @@ $('#equipment-form').addEventListener('submit', async ev => {
             toast('Equipo actualizado en la nube.');
         } else {
             payload.status = 'Registrado';
-            payload.specialist = 'Sin asignar';
+            payload.specialist = TECNICO_PREDETERMINADO;
             payload.service = 'Sin historial';
-            await window.addDoc(window.collection(window.db, "equipos"), payload);
-            toast('Equipo registrado con éxito en la nube.');
+            const equipoRef = await window.addDoc(window.collection(window.db, "equipos"), payload);
+            // Cada equipo registrado genera una orden asignada al técnico.
+            try {
+                await window.addDoc(window.collection(window.db, "ordenes"), {
+                    numero: siguienteNumeroOrden(),
+                    clienteEmail: String(currentUser.email || '').toLowerCase(),
+                    clienteUid: currentUser.uid,
+                    equipoId: equipoRef.id,
+                    equipo: `${data.model} (${data.alias})`,
+                    status: 'Registrado',
+                    especialista: TECNICO_PREDETERMINADO,
+                    diagnostico: '',
+                    pruebas: '',
+                    items: [],
+                    total: 0,
+                    finalizada: false,
+                    creada: Date.now()
+                });
+                toast('Equipo registrado. Se envió la orden al técnico.');
+            } catch (errorOrden) {
+                console.error("Equipo guardado, pero no se pudo crear la orden:", errorOrden);
+                toast('Equipo registrado, pero no se pudo crear la orden para el técnico.');
+            }
         }
         $('#equipment-dialog').close();
         // onSnapshot actualiza la lista solo; no hace falta volver a pedir los datos.
@@ -499,13 +524,11 @@ const ordenIdURL = new URLSearchParams(location.search).get('orden');
 
 const totalItems = items => round(items.reduce((t, i) => t + i.price * i.qty, 0));
 
+// Número basado en la hora: el cliente no puede leer todas las órdenes,
+// así que no se puede contar con un consecutivo. Es único en la práctica.
 function siguienteNumeroOrden() {
-    const prefijo = `ORD-${new Date().getFullYear()}-`;
-    const max = ordenes.reduce((m, o) => {
-        const n = String(o.numero || '');
-        return n.startsWith(prefijo) ? Math.max(m, parseInt(n.slice(prefijo.length), 10) || 0) : m;
-    }, 0);
-    return prefijo + String(max + 1).padStart(3, '0');
+    const d = new Date();
+    return `ORD-${d.getFullYear()}-${String(Date.now()).slice(-6)}`;
 }
 
 function estadoOrden(o) {
@@ -528,7 +551,11 @@ function fetchOrdenes() {
 function renderOrdenes() {
     const body = document.getElementById('orders-body');
     if (!body) return;
-    const lista = [...ordenes].sort((a, b) => (b.creada || 0) - (a.creada || 0));
+    // El técnico ve sus órdenes (y las que aún no tienen técnico asignado).
+    const miCorreo = String(currentUser?.email || '').toLowerCase();
+    const lista = ordenes
+        .filter(o => !o.especialista || o.especialista === 'Sin asignar' || String(o.especialista).toLowerCase() === miCorreo)
+        .sort((a, b) => (b.creada || 0) - (a.creada || 0));
     body.innerHTML = lista.map(o => {
         const items = Array.isArray(o.items) ? o.items : [];
         const principal = items.length ? items[0].name + (items.length > 1 ? ` +${items.length - 1}` : '') : 'Sin servicios aún';
@@ -542,6 +569,78 @@ function renderOrdenes() {
         </tr>`;
     }).join('') || '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">Aún no hay órdenes. Usa «Nueva orden» para crear la primera.</td></tr>';
 }
+
+// --- Órdenes del cliente (equipos.html) ---
+let ordenesCliente = [];
+let unsubOrdenesCliente = null;
+
+function fetchOrdenesCliente(uid) {
+    if (!uid) return;
+    if (unsubOrdenesCliente) unsubOrdenesCliente();
+    const q = window.query(window.collection(window.db, "ordenes"), window.where("clienteUid", "==", uid));
+    unsubOrdenesCliente = window.onSnapshot(q, snap => {
+        ordenesCliente = [];
+        snap.forEach(d => ordenesCliente.push({ id: d.id, ...d.data() }));
+        renderOrdenesCliente();
+    }, error => {
+        console.error("Error al escuchar tus órdenes:", error);
+        const body = document.getElementById('client-orders-body');
+        if (body) body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">No se pudieron cargar tus órdenes.</td></tr>';
+    });
+}
+
+function renderOrdenesCliente() {
+    const body = document.getElementById('client-orders-body');
+    if (!body) return;
+    const lista = [...ordenesCliente].sort((a, b) => (b.creada || 0) - (a.creada || 0));
+    body.innerHTML = lista.map(o => {
+        const items = Array.isArray(o.items) ? o.items : [];
+        const listo = o.finalizada;
+        return `<tr>
+            <td class="mono">#${esc(o.numero)}</td>
+            <td>${esc(o.equipo)}</td>
+            <td>${esc(o.especialista || 'Sin asignar')}</td>
+            <td>${estadoOrden(o)}</td>
+            <td class="mono">${listo ? money(totalItems(items)) : '—'}</td>
+            <td>${listo
+                ? `<button class="btn small" style="background-color:#f0f0f0;color:#000;" data-ver-reporte="${esc(o.id)}">Ver reporte y factura</button>`
+                : '<span class="muted" style="font-size:12.5px;">En proceso</span>'}</td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">Aún no tienes órdenes. Se crea una automáticamente al registrar un equipo.</td></tr>';
+}
+
+document.body.insertAdjacentHTML('beforeend', `
+    <dialog id="client-report-dialog" style="border:1px solid var(--border);border-radius:28px;background:var(--surface);color:var(--ink);padding:0;width:min(640px, calc(100% - 28px));box-shadow:0 30px 90px #06241655;">
+        <div style="padding:24px 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);">
+            <h2 id="client-report-title" style="font-size:22px;margin:0;">Reporte</h2>
+            <button type="button" class="btn outline small" data-close="client-report-dialog" style="background-color:#ddd;color:#333;">Cerrar</button>
+        </div>
+        <div id="client-report-body" style="padding:28px;display:grid;gap:18px;max-height:70vh;overflow:auto;"></div>
+    </dialog>
+`);
+
+document.addEventListener('click', ev => {
+    const btn = ev.target.closest('[data-ver-reporte]');
+    if (!btn) return;
+    const o = ordenesCliente.find(x => x.id === btn.dataset.verReporte);
+    if (!o || !o.finalizada) return;
+    const items = Array.isArray(o.items) ? o.items : [];
+    $('#client-report-title').textContent = `Orden #${o.numero}`;
+    $('#client-report-body').innerHTML = `
+        <p style="margin:0;"><strong>Equipo:</strong> ${esc(o.equipo)} · <strong>Técnico:</strong> ${esc(o.especialista || '—')}</p>
+        <div>
+            <h3 style="margin:0 0 6px;">Diagnóstico del técnico</h3>
+            <p style="margin:0;white-space:pre-wrap;">${esc(o.diagnostico || 'Sin observaciones.')}</p>
+            ${o.pruebas ? `<p style="margin:10px 0 0;white-space:pre-wrap;color:var(--muted);">${esc(o.pruebas)}</p>` : ''}
+        </div>
+        <div>
+            <h3 style="margin:0 0 6px;">Servicios facturados</h3>
+            ${items.map(i => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--border);"><span>${esc(i.name)} × ${esc(i.qty)}</span><span class="mono">${money(i.price * i.qty)}</span></div>`).join('')}
+            <div style="display:flex;justify-content:space-between;padding-top:12px;font-weight:700;"><span>Total</span><span class="mono">${money(totalItems(items))}</span></div>
+        </div>
+        <p style="margin:0;font-size:12.5px;color:var(--muted);">Documento de ejemplo. No es un comprobante fiscal.</p>`;
+    $('#client-report-dialog').showModal();
+});
 
 // --- Nueva orden (ordenes.html) ---
 const ORDER_FIELD_IDS = ['order-email', 'order-equipo'];
@@ -571,12 +670,20 @@ $('#order-form').addEventListener('submit', async ev => {
     const guardar = $('#order-save');
     guardar.disabled = true;
     try {
+        // Si el cliente ya tiene cuenta, se enlaza la orden con su uid para que pueda verla.
+        let clienteUid = null;
+        try {
+            const res = await window.getDocs(window.query(window.collection(window.db, "usuarios"), window.where("email", "==", email)));
+            if (!res.empty) clienteUid = res.docs[0].id;
+        } catch (e) { console.error("No se pudo buscar al cliente:", e); }
+
         await window.addDoc(window.collection(window.db, "ordenes"), {
             numero: siguienteNumeroOrden(),
             clienteEmail: email,
+            clienteUid,
             equipo,
             status: 'Registrado',
-            especialista: currentUser.email,
+            especialista: TECNICO_PREDETERMINADO, // asignación automática
             diagnostico: '',
             pruebas: '',
             items: [],
@@ -819,6 +926,7 @@ window.onAuthStateChanged(window.auth, async (user) => {
         fetchEquipos(user.uid);
         fetchServicios();
         if (page === 'orders') fetchOrdenes();
+        if (page === 'equipment' && rol !== 'tecnico') fetchOrdenesCliente(user.uid);
         if (page === 'diagnostic') cargarOrden();
     } else {
         currentUser = null;
