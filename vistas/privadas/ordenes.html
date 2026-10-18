@@ -46,6 +46,7 @@
                 <circle cx="43" cy="5" r="3" fill="#FF8A5B"/>
                 <path d="M31 14C23 14 21 10 22 5C28 5 32 8 31 14Z" fill="#2D6A4F"/>
             </symbol>
+            <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
             <symbol id="receipt" viewBox="0 0 24 24"><path d="M4 3l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1v19l-2-1-2 1-2-1-2 1-2-1-2 1-2-1-2 1V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7h8m-8 5h8m-8 5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
         </defs>
     </svg>
@@ -60,7 +61,7 @@
                 <a class="nav-link" href="panel.html">Inicio</a>
                 <a class="nav-link" id="nav-equipos" href="equipos.html">Mis equipos</a>
                 <a class="nav-link active" id="nav-ordenes" href="ordenes.html" aria-current="page">Órdenes</a>
-                <a class="nav-link" id="nav-diagnostico" href="diagnostico.html">Diagnóstico</a>
+                <a class="nav-link" id="nav-catalogo" href="catalogo.html">Catálogo</a>
                 <a class="nav-link" id="nav-finanzas" href="finanzas.html">Finanzas</a>
             </nav>
             <div style="margin-left: auto; display: flex; gap: 15px; align-items: center;">
@@ -73,7 +74,7 @@
             <nav class="crumbs" id="breadcrumbs" aria-label="Ruta de navegación">
                 <a href="panel.html">Inicio</a>
                 <span aria-hidden="true">/</span>
-                <span>Mi cuenta</span>
+                <span>Panel especialista</span>
                 <span aria-hidden="true">/</span>
                 <span aria-current="page">Órdenes de servicio</span>
             </nav>
@@ -81,10 +82,13 @@
             <section class="screen" id="orders">
                 <div class="page-head">
                     <div>
-                        <div class="eyebrow">Portal del cliente</div>
+                        <div class="eyebrow">Panel especialista</div>
                         <h1>Órdenes de servicio</h1>
-                        <p>Seguimiento de estado y reportes técnicos.</p>
+                        <p>Reporte técnico y factura de cada orden.</p>
                     </div>
+                    <button class="btn primary" data-action="new-order">
+                        <svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Nueva orden
+                    </button>
                 </div>
 
                 <div class="panel table-wrap">
@@ -92,67 +96,44 @@
                         <thead>
                             <tr>
                                 <th>Orden</th>
+                                <th>Cliente</th>
                                 <th>Equipo</th>
                                 <th>Servicio principal</th>
                                 <th>Estado</th>
                                 <th>Acción</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td class="mono">#ORD-2026-104</td>
-                                <td>PC Desktop Ryzen 7</td>
-                                <td>Mantenimiento y diagnóstico</td>
-                                <td><span class="badge ready"><span class="dot"></span>Listo para entrega</span></td>
-                                <td><a href="diagnostico.html" class="btn small" style="background-color: #f0f0f0; color: #000;">Reporte y factura</a></td>
-                            </tr>
-                            <tr>
-                                <td class="mono">#ORD-2026-103</td>
-                                <td>MacBook Pro M1 16″</td>
-                                <td>Diagnóstico de rendimiento</td>
-                                <td><span class="badge neutral"><span class="dot"></span>En diagnóstico</span></td>
-                                <td><button class="btn small" style="background-color: #f0f0f0; color: #000;">Ver seguimiento</button></td>
-                            </tr>
+                        <tbody id="orders-body">
+                            <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">Cargando órdenes…</td></tr>
                         </tbody>
                     </table>
                 </div>
-
-                <div class="panel report" id="order-report" hidden>
-                    <div class="section-head">
-                        <div>
-                            <div class="eyebrow">Reporte técnico + factura</div>
-                            <h2>#ORD-2026-104</h2>
-                        </div>
-                        <button class="btn" id="print-invoice"><svg class="icon"><use href="#receipt"/></svg>Imprimir / PDF</button>
-                    </div>
-                    <p><strong>Cliente:</strong> Juan Pérez · <strong>Equipo:</strong> PC Desktop Ryzen 7</p>
-                    <div class="two-col" style="margin-top:22px">
-                        <div>
-                            <h3>Diagnóstico del especialista</h3>
-                            <p>Presencia de pasta térmica degradada. Se realizó limpieza de polvo y mantenimiento de ventiladores.</p>
-                            <p class="muted">CPU: 95 °C en prueba inicial. Se recomienda realizar una prueba de estabilidad después del mantenimiento.</p>
-                        </div>
-                        <div>
-                            <h3>Servicios facturados</h3>
-                            <div class="invoice-items">
-                                <div class="invoice-item">
-                                    <span>Limpieza profunda + pasta térmica × 1</span>
-                                    <span class="mono">$35.00</span>
-                                </div>
-                                <div class="invoice-item">
-                                    <span>Diagnóstico de rendimiento × 1</span>
-                                    <span class="mono">$20.00</span>
-                                </div>
-                            </div>
-                            <div class="totals">
-                                <div class="total"><span>Total</span><span class="mono" style="font-size:19px">$55.00</span></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="notice">Documento de ejemplo. No es un comprobante fiscal.</div>
-                </div>
             </section>
         </main>
+
+        <dialog id="order-dialog" style="border:1px solid var(--border);border-radius:28px;background:var(--surface);color:var(--ink);padding:0;width:min(480px, calc(100% - 28px));box-shadow:0 30px 90px #06241655;">
+            <div style="padding:24px 28px;border-bottom:1px solid var(--border);">
+                <h2 style="font-size:22px;margin:0;">Nueva orden de servicio</h2>
+            </div>
+            <form id="order-form" novalidate style="padding:28px;">
+                <div style="display:grid;gap:17px;">
+                    <div>
+                        <label for="order-email" style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;">Correo del cliente</label>
+                        <input id="order-email" type="email" maxlength="80" autocomplete="off" placeholder="Ej.: usuario@ues.edu.sv" aria-describedby="order-email-error" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;">
+                        <p class="field-error" id="order-email-error" aria-live="polite" hidden style="margin-top:6px;font-size:12.5px;color:var(--peach-ink);"></p>
+                    </div>
+                    <div>
+                        <label for="order-equipo" style="display:block;font-size:13px;font-weight:600;margin-bottom:7px;">Equipo (marca y modelo)</label>
+                        <input id="order-equipo" maxlength="60" autocomplete="off" placeholder="Ej.: Lenovo ThinkPad T14" aria-describedby="order-equipo-error" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:14px;">
+                        <p class="field-error" id="order-equipo-error" aria-live="polite" hidden style="margin-top:6px;font-size:12.5px;color:var(--peach-ink);"></p>
+                    </div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:24px;">
+                    <button type="button" class="btn outline" data-close="order-dialog" style="background-color:#ddd;color:#333;">Cancelar</button>
+                    <button class="btn primary" id="order-save">Crear orden</button>
+                </div>
+            </form>
+        </dialog>
     </div>
     <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";

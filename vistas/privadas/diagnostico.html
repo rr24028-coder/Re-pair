@@ -39,8 +39,8 @@
             <nav class="mainnav" id="sidebar">
                 <a class="nav-link" href="panel.html">Inicio</a>
                 <a class="nav-link" id="nav-equipos" href="equipos.html">Mis equipos</a>
-                <a class="nav-link" id="nav-ordenes" href="ordenes.html">Órdenes</a>
-                <a class="nav-link active" id="nav-diagnostico" href="diagnostico.html" aria-current="page">Diagnóstico</a>
+                <a class="nav-link active" id="nav-ordenes" href="ordenes.html">Órdenes</a>
+                <a class="nav-link" id="nav-catalogo" href="catalogo.html">Catálogo</a>
                 <a class="nav-link" id="nav-finanzas" href="finanzas.html">Finanzas</a>
             </nav>
             <div style="margin-left: auto; display: flex; gap: 15px; align-items: center;">
@@ -55,9 +55,9 @@
                 <span aria-hidden="true">/</span>
                 <span>Panel especialista</span>
                 <span aria-hidden="true">/</span>
-                <a href="ordenes.html">Órdenes asignadas</a>
+                <a href="ordenes.html">Órdenes</a>
                 <span aria-hidden="true">/</span>
-                <span aria-current="page">Diagnóstico #ORD-2026-104</span>
+                <span aria-current="page" id="diag-crumb">Diagnóstico</span>
             </nav>
 
             <section class="screen" id="diagnostic">
@@ -67,50 +67,49 @@
                         <h1>Diagnóstico técnico</h1>
                         <p>Evaluación del equipo y facturación de servicios.</p>
                     </div>
-                    <span class="badge"><span class="dot"></span>Borrador</span>
+                    <span class="badge" id="diag-badge"><span class="dot"></span>Cargando…</span>
                 </div>
 
                 <div class="meta-grid panel">
                     <div>
                         <small>CLIENTE</small>
-                        <p>Juan Pérez</p>
+                        <p id="diag-cliente">—</p>
                     </div>
                     <div>
                         <small>EQUIPO</small>
-                        <p>PC Desktop Ryzen 7</p>
+                        <p id="diag-equipo">—</p>
                     </div>
                     <div>
                         <small>ORDEN / ESPECIALISTA</small>
-                        <p><span class="mono">#ORD-2026-104</span> · Ing. Carlos R.</p>
+                        <p><span class="mono" id="diag-numero">—</span> · <span id="diag-especialista">—</span></p>
                     </div>
                 </div>
 
-                <div class="two-col">
+                <div class="two-col" id="diag-editor">
                     <div class="panel form-panel">
                         <h2>Evaluación del especialista</h2>
                         <div class="fields">
                             <div>
                                 <label for="diagnosis">Diagnóstico y observaciones</label>
-                                <textarea id="diagnosis">Presencia de pasta térmica degradada. Limpieza de polvo requerida en ventiladores y disipador.</textarea>
+                                <textarea id="diagnosis" placeholder="Describe lo que encontraste en el equipo."></textarea>
                             </div>
                             <div>
                                 <label for="stress-test">Pruebas de estrés y recomendaciones</label>
-                                <textarea id="stress-test">Temperatura máxima de CPU: 95 °C. Se recomienda cambio de disipador y aplicación de pasta térmica.</textarea>
+                                <textarea id="stress-test" placeholder="Temperaturas, pruebas realizadas y recomendaciones."></textarea>
                             </div>
                         </div>
-                        
+
                         <hr class="separator">
                         <h3 style="margin-bottom:15px">Servicios y componentes</h3>
-                        
+
                         <div class="fields">
                             <div>
                                 <label for="invoice-service">Seleccionar ítem del catálogo</label>
                                 <select id="invoice-service">
-                                    <option value="deep">Limpieza profunda + pasta térmica — $35.00</option>
-                                    <option value="diag">Diagnóstico de rendimiento — $20.00</option>
+                                    <option value="">Cargando servicios…</option>
                                 </select>
                             </div>
-                            <button class="btn"><svg class="icon"><use href="#plus"/></svg>Añadir a factura</button>
+                            <button class="btn" id="add-item" type="button"><svg class="icon"><use href="#plus"/></svg>Añadir a factura</button>
                         </div>
                         <div class="notice">Los precios se calculan a partir del catálogo. El costo base queda visible para el especialista.</div>
                     </div>
@@ -120,39 +119,51 @@
                             <h2 style="margin:0">Resumen de factura</h2>
                             <svg class="icon muted"><use href="#receipt"/></svg>
                         </div>
-                        
-                        <div class="invoice-items">
-                            <div class="invoice-item">
-                                <div>
-                                    <strong>Limpieza profunda + pasta térmica</strong>
-                                    <small>Costo base: $20.00 · Cantidad: 1</small>
-                                </div>
-                                <span class="mono">$35.00</span>
-                                <button class="btn ghost icon-btn" aria-label="Quitar Limpieza profunda"><svg class="icon"><use href="#close"/></svg></button>
-                            </div>
-                            <div class="invoice-item">
-                                <div>
-                                    <strong>Diagnóstico de rendimiento</strong>
-                                    <small>Costo base: $10.00 · Cantidad: 1</small>
-                                </div>
-                                <span class="mono">$20.00</span>
-                                <button class="btn ghost icon-btn" aria-label="Quitar Diagnóstico"><svg class="icon"><use href="#close"/></svg></button>
-                            </div>
-                        </div>
+
+                        <div class="invoice-items" id="invoice-items"></div>
 
                         <hr class="separator">
                         <div class="totals">
                             <div class="total">
                                 <span>Total</span>
-                                <span class="mono" style="font-size:19px">$55.00</span>
+                                <span class="mono" style="font-size:19px" id="invoice-total">$0.00</span>
                             </div>
                         </div>
 
                         <div class="fields" style="margin-top:24px">
-                            <button class="btn primary"><svg class="icon"><use href="#file-text"/></svg>Finalizar y generar factura</button>
-                            <button class="btn">Guardar borrador</button>
+                            <button class="btn primary" id="finalize-order" type="button"><svg class="icon"><use href="#file-text"/></svg>Finalizar y generar factura</button>
+                            <button class="btn" id="save-draft" type="button">Guardar borrador</button>
                         </div>
                     </div>
+                </div>
+
+                <div class="panel report" id="order-report" hidden>
+                    <div class="section-head">
+                        <div>
+                            <div class="eyebrow">Reporte técnico + factura</div>
+                            <h2 id="report-numero">#</h2>
+                        </div>
+                        <div class="head-actions">
+                            <button class="btn" id="reopen-order" type="button">Reabrir para editar</button>
+                            <button class="btn" id="print-invoice" type="button"><svg class="icon"><use href="#receipt"/></svg>Imprimir / PDF</button>
+                        </div>
+                    </div>
+                    <p><strong>Cliente:</strong> <span id="report-cliente"></span> · <strong>Equipo:</strong> <span id="report-equipo"></span></p>
+                    <div class="two-col" style="margin-top:22px">
+                        <div>
+                            <h3>Diagnóstico del especialista</h3>
+                            <p class="pre" id="report-diagnostico"></p>
+                            <p class="pre muted" id="report-pruebas"></p>
+                        </div>
+                        <div>
+                            <h3>Servicios facturados</h3>
+                            <div class="invoice-items" id="report-items"></div>
+                            <div class="totals">
+                                <div class="total"><span>Total</span><span class="mono" style="font-size:19px" id="report-total">$0.00</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="notice">Documento de ejemplo. No es un comprobante fiscal.</div>
                 </div>
             </section>
         </main>
