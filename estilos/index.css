@@ -159,6 +159,53 @@
 }
 .hero-link:hover { color: var(--leaf); }
 
+/* Pera decorativa junto al título principal */
+.hero-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+.hero-head .hero-title { margin-bottom: 0; font-size: clamp(2.2rem, 4.6vw, 3.6rem); }
+.hero-pear-deco {
+    --pear: clamp(110px, 14vw, 170px);
+    position: relative;
+    flex: 0 0 auto;
+    width: var(--pear);
+    height: var(--pear);
+}
+.hero-pear-deco::before {
+    content: "";
+    position: absolute;
+    inset: 6%;
+    border-radius: 50%;
+    background: var(--lime-soft);
+}
+.hero-pear-deco::after {
+    content: "";
+    position: absolute;
+    top: 10%;
+    left: 4%;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--peach);
+    box-shadow: calc(var(--pear) * .85) calc(var(--pear) * .7) 0 -3px var(--lime), calc(var(--pear) * .95) calc(var(--pear) * .15) 0 -5px var(--peach-soft);
+}
+.hero-pear-deco svg {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform: rotate(8deg);
+    filter: drop-shadow(0 18px 16px rgba(27, 67, 50, .22));
+    animation: pear-float 5s ease-in-out infinite;
+}
+@keyframes pear-float {
+    0%, 100% { transform: translateY(0) rotate(8deg); }
+    50% { transform: translateY(-10px) rotate(4deg); }
+}
+
 /* Tarjeta de orden: el momento principal de la página */
 .hero-visual { position: relative; }
 .hero-pear {
@@ -449,6 +496,9 @@
     .cta-pear { display: none; }
 }
 @media (max-width: 560px) {
+    .hero-head { flex-direction: column-reverse; align-items: flex-start; gap: 16px; }
+    .hero-pear-deco { --pear: 100px; }
+    .hero-pear-deco::after { display: none; }
     .topbar-content { padding: 12px 16px; }
     .brand-logo { font-size: 1.4rem; }
     .brand-pear { width: 30px; height: 30px; }
@@ -466,6 +516,7 @@
 
 @media (prefers-reduced-motion: reduce) {
     .bar-after i { animation: none; }
+    .hero-pear-deco svg { animation: none; }
     .hero-btn, .btn-lime { transition: none; }
 }
 
