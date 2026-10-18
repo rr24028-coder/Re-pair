@@ -26,6 +26,8 @@ h3 { font-size: 15px; }
 .btn { display: inline-flex; align-items: center; gap: 9px; padding: 11px 19px; border-radius: 999px; font-size: 13.5px; font-weight: 600; background: var(--surface); border: 1px solid var(--border); transition: background 150ms ease, transform 150ms ease; }
 .btn:active { transform: scale(0.98); }
 .btn:hover { background: var(--hover); }
+.btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); box-shadow: 0 10px 22px -10px color-mix(in srgb, var(--accent) 80%, transparent); }
+.btn.primary:hover { background: var(--accent-hover); }
 .btn.small { padding: 8px 14px; font-size: 12.5px; }
 .btn.ghost { border-color: transparent; background: transparent; }
 .btn.ghost:hover { background: var(--hover); }

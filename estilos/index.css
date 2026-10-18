@@ -111,7 +111,7 @@
 }
 .hero-grid {
     display: grid;
-    grid-template-columns: 1.05fr 0.95fr;
+    grid-template-columns: 1fr;
     gap: 64px;
     align-items: center;
 }

@@ -1,0 +1,29 @@
+/* Catálogo de servicios — se carga después de ordenes.css (base compartida) */
+.btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); box-shadow: 0 10px 22px -10px color-mix(in srgb, var(--accent) 80%, transparent); }
+.btn.primary:hover { background: var(--accent-hover); }
+
+.head-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+.catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 28px; }
+
+.service-card { display: flex; flex-direction: column; gap: 14px; padding: 26px; }
+.service-ic { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 17px; background: var(--lime-soft); color: var(--accent); }
+.service-ic .icon { width: 26px; height: 26px; }
+.service-card h3 { font-size: 20px; letter-spacing: -0.02em; line-height: 1.2; }
+.service-card p { color: var(--muted); font-size: 14px; flex: 1; }
+.service-price { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding-top: 16px; border-top: 1px solid var(--border); }
+.service-price span { font-size: 12px; font-weight: 600; color: var(--muted); }
+.service-price b { font: 700 24px var(--mono); letter-spacing: -0.03em; color: var(--accent); }
+
+.catalog-empty { grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--muted); }
+
+.catalog-note { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding: 24px 28px; background: var(--lime-soft); }
+.catalog-note p { margin-top: 6px; color: var(--ink); font-size: 14px; max-width: 60ch; }
+
+@media (max-width: 640px) {
+    .page-head { flex-direction: column; align-items: flex-start; }
+    .catalog-grid { grid-template-columns: 1fr; }
+}
+@media print {
+    .head-actions, .catalog-note { display: none !important; }
+}

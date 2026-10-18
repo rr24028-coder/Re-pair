@@ -96,3 +96,17 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
     .two-col { grid-template-columns: 1fr; }
     .meta-grid { grid-template-columns: 1fr; gap: 12px; }
 }
+.head-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.report { padding: 30px; margin-top: 0; }
+.report h3 { font-size: 16px; margin-bottom: 10px; }
+.report p { margin-bottom: 8px; }
+.pre { white-space: pre-line; }
+.invoice-item .btn { color: var(--peach-ink); }
+.empty-items { color: var(--muted); font-size: 13px; }
+
+@media print {
+    .topbar, .crumbs, .page-head, .meta-grid, .btn, .notice { display: none !important; }
+    .report { box-shadow: none; border: 0; padding: 0; margin: 0; }
+    body { background: white; }
+}
+[hidden] { display: none !important; }
